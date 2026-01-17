@@ -2,59 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faltantes Jumbo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Faltantes - Jumbo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Colores para Modo Oscuro */
-    body.dark-mode { background-color: #121212; color: #e0e0e0; }
-    body.dark-mode .search-container { background: #1b1b1b; border-bottom: 1px solid #333; }
-    body.dark-mode .product-card { background: #1e1e1e; border-left-color: #4caf50; color: white; }
-    body.dark-mode .product-name { color: #fff; }
-    body.dark-mode .category-label { color: #bbb; }
-    body.dark-mode .badge-cat { background: #2c2c2c; color: #4caf50; }
+        :root { --bg: #f4f7f6; --card: #ffffff; --text: #333; --border: #ddd; }
+        body.dark-mode { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --border: #333; }
 
-    /* Botón flotante */
-    .btn-dark-toggle {
-        position: fixed; bottom: 20px; right: 20px; z-index: 2000;
-        width: 50px; height: 50px; border-radius: 50%;
-    }
-        body { background-color: #f4f7f6; padding-bottom: 50px; }
-        .search-container { 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            background: #f4f7f6; 
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .product-card { border: none; border-left: 5px solid #28a745; margin-bottom: 8px; }
-        .category-label { font-size: 0.75rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
-        .product-name { font-size: 1rem; color: #333; font-weight: 500; }
+        body { background-color: var(--bg); color: var(--text); transition: 0.3s; }
         
-        /* Barra de categorías */
+        .search-container { 
+            position: sticky; top: 0; z-index: 1000; 
+            background: var(--bg); padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .product-card { 
+            background: var(--card); border: none; 
+            border-left: 6px solid #28a745; margin-bottom: 10px; 
+            transition: all 0.2s; color: var(--text);
+        }
+        
+        /* Efecto cuando el producto ya no está disponible o procesado */
+        .product-card.disabled { opacity: 0.35; filter: grayscale(1); text-decoration: line-through; }
+
+        .category-label { font-size: 0.7rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
+        
         #categoryBar::-webkit-scrollbar { display: none; }
         .badge-cat { 
-            cursor: pointer; 
-            font-size: 0.85rem; 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            border: 1px solid #28a745; 
-            color: #28a745; 
-            background: white; 
-            display: inline-block;
+            cursor: pointer; font-size: 0.85rem; padding: 8px 16px; 
+            border-radius: 20px; border: 1px solid #28a745; 
+            color: #28a745; background: var(--card); display: inline-block;
         }
-        .badge-cat:active { background: #28a745; color: white; }
+
+        .btn-dark-toggle {
+            position: fixed; bottom: 20px; right: 20px; z-index: 2000;
+            width: 55px; height: 55px; border-radius: 50%; border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            background: #28a745; color: white; font-size: 1.5rem;
+        }
     </style>
 </head>
 <body>
-<button class="btn btn-dark btn-dark-toggle" onclick="toggleDarkMode()">🌙</button>
+
+<button class="btn-dark-toggle" onclick="toggleDarkMode()" id="themeBtn">🌙</button>
+
 <div class="search-container">
-    <h3 class="text-center mb-3">Control Faltantes</h3>
-    <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm mb-3" placeholder="Buscar producto o categoría...">
+    <h4 class="text-center mb-3">🛒 Control de Faltantes</h4>
+    <input type="text" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" placeholder="Buscar o escanear sector...">
     
-    <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;">
-        </div>
+    <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;"></div>
 </div>
 
 <div class="container mt-3">
@@ -68,34 +65,32 @@
 
     // Cargar datos
     fetch('productos.json')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            productos = data;
+            // Ordenamos alfabéticamente por categoría (esto respetará tus números 01, 02...)
+            productos = data.sort((a, b) => a.c.localeCompare(b.c));
             crearFiltrosCategorias();
             renderizar();
-        })
-        .catch(err => console.error("Error cargando JSON:", err));
+        });
 
     function crearFiltrosCategorias() {
         const catBar = document.getElementById('categoryBar');
-        const categoriasUnicas = [...new Set(productos.map(p => p.c))];
+        const categorias = [...new Set(productos.map(p => p.c))];
         
-        // Botón Todo
         const btnTodo = document.createElement('span');
         btnTodo.className = "badge-cat";
-        btnTodo.innerText = "⭐ Todo";
+        btnTodo.innerText = "⭐ TODO";
         btnTodo.onclick = () => { searchInput.value = ""; renderizar(); };
         catBar.appendChild(btnTodo);
 
-        // Botones dinámicos
-        categoriasUnicas.forEach(cat => {
+        categorias.forEach(cat => {
             const btn = document.createElement('span');
             btn.className = "badge-cat";
             btn.innerText = cat;
             btn.onclick = () => {
                 searchInput.value = cat;
                 renderizar(cat);
-                window.scrollTo(0, 0);
+                window.scrollTo(0,0);
             };
             catBar.appendChild(btn);
         });
@@ -109,41 +104,39 @@
             p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
         );
 
-        filtrados.forEach(p => {
+        filtrados.forEach((p, index) => {
             const card = document.createElement('div');
             card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            card.id = `card-${index}`;
             card.innerHTML = `
-                <div style="flex-grow: 1; margin-right: 10px;">
+                <div onclick="desactivar('card-${index}')" style="flex-grow: 1;">
                     <div class="category-label">${p.c}</div>
                     <div class="product-name">${p.n}</div>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" onclick="copiar('${p.n}', this)">Copiar</button>
+                <button class="btn btn-outline-primary btn-sm ms-2" onclick="copiar('${p.n}', this, 'card-${index}')">Copiar</button>
             `;
             listaDiv.appendChild(card);
         });
     }
 
-    function copiar(texto, btn) {
-        navigator.clipboard.writeText(texto).then(() => {
-            const original = btn.innerText;
-            btn.innerText = "¡Listo!";
-            btn.classList.replace("btn-outline-primary", "btn-success");
-            setTimeout(() => {
-                btn.innerText = original;
-                btn.classList.replace("btn-success", "btn-outline-primary");
-            }, 800);
-        });
+    function copiar(texto, btn, cardId) {
+        navigator.clipboard.writeText(texto);
+        const original = btn.innerText;
+        btn.innerText = "✓";
+        setTimeout(() => btn.innerText = original, 800);
+    }
+
+    function desactivar(cardId) {
+        const card = document.getElementById(cardId);
+        card.classList.toggle('disabled');
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     }
 
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
-
-    function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const btn = document.querySelector('.btn-dark-toggle');
-    btn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    }
 </script>
-
 </body>
 </html>
-
