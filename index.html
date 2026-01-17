@@ -26,7 +26,7 @@
     let productos = []; // Empezamos con la lista vacía
 
     // 1. CARGAMOS LOS DATOS DESDE EL ARCHIVO EXTERNO
-    fetch('productos.json')
+    fetch('products.json')
         .then(response => response.json())
         .then(data => {
             productos = data; // Guardamos los datos cargados
@@ -69,4 +69,5 @@
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
 </script>
 </body>
+
 </html>
