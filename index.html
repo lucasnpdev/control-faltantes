@@ -6,62 +6,82 @@
     <title>Faltantes Jumbo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; }
-        .search-container { position: sticky; top: 0; z-index: 1000; background: #f4f7f6; padding: 15px 0; }
+        body { background-color: #f4f7f6; padding-bottom: 50px; }
+        .search-container { 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            background: #f4f7f6; 
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
         .product-card { border: none; border-left: 5px solid #28a745; margin-bottom: 8px; }
         .category-label { font-size: 0.75rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
-        #categoryBar::-webkit-scrollbar { display: none; } /* Oculta la barra de scroll */
-        .badge-cat { cursor: pointer; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px; border: 1px solid #28a745; color: #28a745; background: white; }
+        .product-name { font-size: 1rem; color: #333; font-weight: 500; }
+        
+        /* Barra de categorías */
+        #categoryBar::-webkit-scrollbar { display: none; }
+        .badge-cat { 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            border: 1px solid #28a745; 
+            color: #28a745; 
+            background: white; 
+            display: inline-block;
+        }
         .badge-cat:active { background: #28a745; color: white; }
     </style>
 </head>
 <body>
 
 <div class="search-container">
-        <h3 class="text-center mb-3">Control Faltantes</h3>
-        <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm mb-3" placeholder="Buscar producto o categoría...">
-        
-        <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;">
-            </div>
-    </div>
+    <h3 class="text-center mb-3">Control Faltantes</h3>
+    <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm mb-3" placeholder="Buscar producto o categoría...">
+    
+    <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;">
+        </div>
+</div>
+
+<div class="container mt-3">
+    <div id="listaProductos"></div>
+</div>
 
 <script>
+    let productos = [];
+    const listaDiv = document.getElementById('listaProductos');
+    const searchInput = document.getElementById('searchInput');
+
+    // Cargar datos
     fetch('productos.json')
         .then(response => response.json())
         .then(data => {
             productos = data;
-            crearFiltrosCategorias(); // <-- Nueva función
+            crearFiltrosCategorias();
             renderizar();
-        });
+        })
+        .catch(err => console.error("Error cargando JSON:", err));
 
     function crearFiltrosCategorias() {
         const catBar = document.getElementById('categoryBar');
-        // Extraemos categorías únicas
-        const categoriasunicas = [...new Set(productos.map(p => p.c))];
+        const categoriasUnicas = [...new Set(productos.map(p => p.c))];
         
-        // Agregamos un botón para "Ver Todo"
+        // Botón Todo
         const btnTodo = document.createElement('span');
         btnTodo.className = "badge-cat";
         btnTodo.innerText = "⭐ Todo";
         btnTodo.onclick = () => { searchInput.value = ""; renderizar(); };
         catBar.appendChild(btnTodo);
 
-        categoriasunicas.forEach(cat => {
+        // Botones dinámicos
+        categoriasUnicas.forEach(cat => {
             const btn = document.createElement('span');
             btn.className = "badge-cat";
             btn.innerText = cat;
             btn.onclick = () => {
-                searchInput.value = cat; // Pone la categoría en el buscador
-                renderizar(cat);        // Filtra
-                window.scrollTo(0, 0);  // Sube al principio
+                searchInput.value = cat;
+                renderizar(cat);
+                window.scrollTo(0, 0);
             };
-            catBar.appendChild(btn);
-        });
-    }
-</script>
-</body>
-
-</html>
-
-
-
+            catBar.appendChild
