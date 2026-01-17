@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Súper Lista Familiar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; }
+        .search-container { position: sticky; top: 0; z-index: 1000; background: #f4f7f6; padding: 15px 0; }
+        .product-card { border: none; border-left: 5px solid #28a745; margin-bottom: 8px; }
+        .category-label { font-size: 0.75rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="search-container">
+        <h3 class="text-center mb-3">🛒 Lista de Súper</h3>
+        <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm" placeholder="Buscar producto o categoría...">
+    </div>
+    <div id="listaProductos" class="pb-5"></div>
+</div>
+
+<script>
+    let productos = []; // Empezamos con la lista vacía
+
+    // 1. CARGAMOS LOS DATOS DESDE EL ARCHIVO EXTERNO
+    fetch('productos.json')
+        .then(response => response.json())
+        .then(data => {
+            productos = data; // Guardamos los datos cargados
+            renderizar();      // Mostramos la lista por primera vez
+        })
+        .catch(error => console.error('Error cargando los productos:', error));
+
+    const listaDiv = document.getElementById('listaProductos');
+    const searchInput = document.getElementById('searchInput');
+
+    function renderizar(filtro = "") {
+        listaDiv.innerHTML = "";
+        const f = filtro.toLowerCase();
+        
+        const filtrados = productos.filter(p => 
+            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
+        );
+
+        filtrados.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            card.innerHTML = `
+                <div style="flex-grow: 1;">
+                    <div class="category-label">${p.c}</div>
+                    <div class="product-name">${p.n}</div>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="copiar('${p.n}', this)">Copiar</button>
+            `;
+            listaDiv.appendChild(card);
+        });
+    }
+
+    function copiar(texto, btn) {
+        navigator.clipboard.writeText(texto).then(() => {
+            btn.innerText = "¡Copiado!";
+            setTimeout(() => btn.innerText = "Copiar", 800);
+        });
+    }
+
+    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+</script>
+</body>
+</html>
