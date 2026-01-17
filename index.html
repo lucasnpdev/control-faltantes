@@ -10,66 +10,58 @@
         .search-container { position: sticky; top: 0; z-index: 1000; background: #f4f7f6; padding: 15px 0; }
         .product-card { border: none; border-left: 5px solid #28a745; margin-bottom: 8px; }
         .category-label { font-size: 0.75rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
+        #categoryBar::-webkit-scrollbar { display: none; } /* Oculta la barra de scroll */
+        .badge-cat { cursor: pointer; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px; border: 1px solid #28a745; color: #28a745; background: white; }
+        .badge-cat:active { background: #28a745; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="search-container">
-        <h3 class="text-center mb-3">Control faltantes</h3>
-        <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm" placeholder="Buscar producto o categoría...">
+<div class="search-container">
+        <h3 class="text-center mb-3">Control Faltantes</h3>
+        <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm mb-3" placeholder="Buscar producto o categoría...">
+        
+        <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;">
+            </div>
     </div>
-    <div id="listaProductos" class="pb-5"></div>
-</div>
 
 <script>
-    let productos = []; // Empezamos con la lista vacía
-
-    // 1. CARGAMOS LOS DATOS DESDE EL ARCHIVO EXTERNO
-    fetch('products.json')
+    fetch('productos.json')
         .then(response => response.json())
         .then(data => {
-            productos = data; // Guardamos los datos cargados
-            renderizar();      // Mostramos la lista por primera vez
-        })
-        .catch(error => console.error('Error cargando los productos:', error));
+            productos = data;
+            crearFiltrosCategorias(); // <-- Nueva función
+            renderizar();
+        });
 
-    const listaDiv = document.getElementById('listaProductos');
-    const searchInput = document.getElementById('searchInput');
-
-    function renderizar(filtro = "") {
-        listaDiv.innerHTML = "";
-        const f = filtro.toLowerCase();
+    function crearFiltrosCategorias() {
+        const catBar = document.getElementById('categoryBar');
+        // Extraemos categorías únicas
+        const categoriasunicas = [...new Set(productos.map(p => p.c))];
         
-        const filtrados = productos.filter(p => 
-            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
-        );
+        // Agregamos un botón para "Ver Todo"
+        const btnTodo = document.createElement('span');
+        btnTodo.className = "badge-cat";
+        btnTodo.innerText = "⭐ Todo";
+        btnTodo.onclick = () => { searchInput.value = ""; renderizar(); };
+        catBar.appendChild(btnTodo);
 
-        filtrados.forEach(p => {
-            const card = document.createElement('div');
-            card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
-            card.innerHTML = `
-                <div style="flex-grow: 1;">
-                    <div class="category-label">${p.c}</div>
-                    <div class="product-name">${p.n}</div>
-                </div>
-                <button class="btn btn-outline-primary btn-sm" onclick="copiar('${p.n}', this)">Copiar</button>
-            `;
-            listaDiv.appendChild(card);
+        categoriasunicas.forEach(cat => {
+            const btn = document.createElement('span');
+            btn.className = "badge-cat";
+            btn.innerText = cat;
+            btn.onclick = () => {
+                searchInput.value = cat; // Pone la categoría en el buscador
+                renderizar(cat);        // Filtra
+                window.scrollTo(0, 0);  // Sube al principio
+            };
+            catBar.appendChild(btn);
         });
     }
-
-    function copiar(texto, btn) {
-        navigator.clipboard.writeText(texto).then(() => {
-            btn.innerText = "¡Copiado!";
-            setTimeout(() => btn.innerText = "Copiar", 800);
-        });
-    }
-
-    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
 </script>
 </body>
 
 </html>
+
 
 
