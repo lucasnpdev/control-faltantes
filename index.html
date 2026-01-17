@@ -84,4 +84,46 @@
                 renderizar(cat);
                 window.scrollTo(0, 0);
             };
-            catBar.appendChild
+            catBar.appendChild(btn);
+        });
+    }
+
+    function renderizar(filtro = "") {
+        listaDiv.innerHTML = "";
+        const f = filtro.toLowerCase();
+        
+        const filtrados = productos.filter(p => 
+            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
+        );
+
+        filtrados.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            card.innerHTML = `
+                <div style="flex-grow: 1; margin-right: 10px;">
+                    <div class="category-label">${p.c}</div>
+                    <div class="product-name">${p.n}</div>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="copiar('${p.n}', this)">Copiar</button>
+            `;
+            listaDiv.appendChild(card);
+        });
+    }
+
+    function copiar(texto, btn) {
+        navigator.clipboard.writeText(texto).then(() => {
+            const original = btn.innerText;
+            btn.innerText = "¡Listo!";
+            btn.classList.replace("btn-outline-primary", "btn-success");
+            setTimeout(() => {
+                btn.innerText = original;
+                btn.classList.replace("btn-success", "btn-outline-primary");
+            }, 800);
+        });
+    }
+
+    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+</script>
+
+</body>
+</html>
