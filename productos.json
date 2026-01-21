@@ -22,7 +22,7 @@
   { "n": "Salchicha Swift clásica", "c": "05. Salchicha" },
   { "n": "Salchicha Vienissima", "c": "05. Salchicha" },
   { "n": "Jamón cocido paladini", "c": "06. Fiambre" },
-  { "n": "Jamón cocido paladini bajo en sodio", "c": "06. Fiambre" },
+  { "n": "Jamon cocido paladini bajo en sodio", "c": "06. Fiambre" },
   { "n": "Jamón lario 300g", "c": "06. Fiambre" },
   { "n": "Queso Adler", "c": "06. Fiambre" },
   { "n": "Jamón cocido bocati", "c": "06. Fiambre" },
@@ -98,4 +98,5 @@
   { "n": "Azúcar impalpable", "c": "26. Sector yerbas y café" },
   { "n": "Harina Leudante fortificada", "c": "27. Sector harina" }
 ]
+
 
