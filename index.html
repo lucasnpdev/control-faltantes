@@ -30,12 +30,24 @@
             transition: all 0.2s; color: var(--text);
         }
         
-        /* Estado desactivado al copiar */
+        /* Resaltado específico para categoría 00 */
+        .product-card.category-zero {
+            border-left-color: #ff4d4d !important;
+            background-color: rgba(255, 77, 77, 0.05);
+        }
+        .product-card.category-zero .category-label {
+            color: #ff4d4d !important;
+            font-weight: 900;
+        }
+        body.dark-mode .product-card.category-zero {
+            background-color: rgba(255, 77, 77, 0.12);
+        }
+
         .product-card.disabled { 
             opacity: 0.3; 
             filter: grayscale(1); 
             text-decoration: line-through; 
-            border-left-color: #6c757d;
+            border-left-color: #6c757d !important;
         }
 
         .category-label { font-size: 0.7rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
@@ -47,7 +59,6 @@
             color: #28a745; background: var(--card); display: inline-block;
         }
 
-        /* Nuevo estilo del botón de modo oscuro en el header */
         .theme-toggle-header {
             background: none; border: 1px solid var(--border);
             border-radius: 8px; padding: 5px 10px; color: var(--text);
@@ -74,39 +85,7 @@
 
 <script>
     let productos = [];
-    const listaDiv = document.getElementById('listaProductos');
-    const searchInput = document.getElementById('searchInput');
-
-    fetch('productos.json')
-        .then(res => res.json())
-        .then(data => {
-            productos = data.sort((a, b) => a.c.localeCompare(b.c));
-            crearFiltrosCategorias();
-            renderizar();
-        });
-
-    function crearFiltrosCategorias() {
-        const catBar = document.getElementById('categoryBar');
-        const categorias = [...new Set(productos.map(p => p.c))];
-        
-        const btnTodo = document.createElement('span');
-        btnTodo.className = "badge-cat";
-        btnTodo.innerText = "⭐ TODO";
-        btnTodo.onclick = () => { searchInput.value = ""; renderizar(); };
-        catBar.appendChild(btnTodo);
-
-        categorias.forEach(cat => {
-            const btn = document.createElement('span');
-            btn.className = "badge-cat";
-            btn.innerText = cat;
-            btn.onclick = () => {
-                searchInput.value = cat;
-                renderizar(cat);
-                window.scrollTo(0,0);
-            };
-            catBar.appendChild(btn);
-        });
-    }
+    const listaDiv = document.getElementById('listaProductos
 
     function renderizar(filtro = "") {
         listaDiv.innerHTML = "";
@@ -158,4 +137,5 @@
 </script>
 </body>
 </html>
+
 
