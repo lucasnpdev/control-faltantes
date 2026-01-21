@@ -62,6 +62,14 @@
             background: #28a745;
             color: white;
         }
+        .badge-cat.category-zero-badge {
+            border-color: #ff4d4d;
+            color: #ff4d4d;
+        }
+        .badge-cat.category-zero-badge.active {
+            background: #ff4d4d;
+            color: white;
+        }
 
         .theme-toggle-header {
             background: none; border: 1px solid var(--border);
@@ -123,6 +131,12 @@
             badge.className = 'badge-cat';
             badge.textContent = cat;
             badge.onclick = () => filtrarPorCategoria(cat);
+            
+            // Agregar clase especial para categoría 00
+            if (cat.startsWith('00')) {
+                badge.classList.add('category-zero-badge');
+            }
+            
             categoryBar.appendChild(badge);
         });
     }
