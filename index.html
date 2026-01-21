@@ -58,6 +58,10 @@
             border-radius: 20px; border: 1px solid #28a745; 
             color: #28a745; background: var(--card); display: inline-block;
         }
+        .badge-cat.active {
+            background: #28a745;
+            color: white;
+        }
 
         .theme-toggle-header {
             background: none; border: 1px solid var(--border);
@@ -85,42 +89,104 @@
 
 <script>
     let productos = [];
-    const listaDiv = document.getElementById('listaProductos
+    const listaDiv = document.getElementById('listaProductos');
+    const searchInput = document.getElementById('searchInput');
+    const categoryBar = document.getElementById('categoryBar');
+    let categoriaSeleccionada = null;
+
+    // Cargar productos desde JSON
+    async function cargarProductos() {
+        try {
+            const response = await fetch('productos.json');
+            productos = await response.json();
+            crearCategorias();
+            renderizar();
+        } catch (error) {
+            console.error('Error cargando productos:', error);
+            listaDiv.innerHTML = '<div class="alert alert-danger">Error al cargar los productos. Verifica que el archivo productos.json esté en la misma carpeta.</div>';
+        }
+    }
+
+    function crearCategorias() {
+        const categorias = [...new Set(productos.map(p => p.c))].sort();
+        
+        // Agregar botón "Todas"
+        const btnTodas = document.createElement('span');
+        btnTodas.className = 'badge-cat active';
+        btnTodas.textContent = 'Todas';
+        btnTodas.onclick = () => filtrarPorCategoria(null);
+        categoryBar.appendChild(btnTodas);
+        
+        // Agregar categorías
+        categorias.forEach(cat => {
+            const badge = document.createElement('span');
+            badge.className = 'badge-cat';
+            badge.textContent = cat;
+            badge.onclick = () => filtrarPorCategoria(cat);
+            categoryBar.appendChild(badge);
+        });
+    }
+
+    function filtrarPorCategoria(categoria) {
+        categoriaSeleccionada = categoria;
+        
+        // Actualizar badges activos
+        document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        renderizar();
+    }
 
     function renderizar(filtro = "") {
         listaDiv.innerHTML = "";
         const f = filtro.toLowerCase();
         
-        const filtrados = productos.filter(p => 
+        let filtrados = productos.filter(p => 
             p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
         );
+
+        // Filtrar por categoría si hay una seleccionada
+        if (categoriaSeleccionada) {
+            filtrados = filtrados.filter(p => p.c === categoriaSeleccionada);
+        }
 
         filtrados.forEach((p, index) => {
             const card = document.createElement('div');
             card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            
+            // Agregar clase especial para categoría 00
+            if (p.c.startsWith('00')) {
+                card.classList.add('category-zero');
+            }
+            
             card.id = `card-${index}`;
             card.innerHTML = `
                 <div onclick="toggleManual('card-${index}')" style="flex-grow: 1;">
                     <div class="category-label">${p.c}</div>
                     <div class="product-name">${p.n}</div>
                 </div>
-                <button class="btn btn-outline-primary btn-sm ms-2" onclick="copiarYDesactivar('${p.n}', this, 'card-${index}')">Copiar</button>
+                <button class="btn btn-outline-primary btn-sm ms-2" onclick="copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', this, 'card-${index}')">Copiar</button>
             `;
             listaDiv.appendChild(card);
         });
+
+        if (filtrados.length === 0) {
+            listaDiv.innerHTML = '<div class="alert alert-info">No se encontraron productos</div>';
+        }
     }
 
-    // NUEVA FUNCIÓN: Copia y desactiva al mismo tiempo
+    // Copia y desactiva al mismo tiempo
     function copiarYDesactivar(texto, btn, cardId) {
-        navigator.clipboard.writeText(texto);
-        const card = document.getElementById(cardId);
-        
-        // Efecto visual en el botón
-        btn.innerText = "✓";
-        btn.classList.replace("btn-outline-primary", "btn-success");
-        
-        // Desactivar la tarjeta
-        card.classList.add('disabled');
+        navigator.clipboard.writeText(texto).then(() => {
+            const card = document.getElementById(cardId);
+            
+            // Efecto visual en el botón
+            btn.innerText = "✓";
+            btn.classList.replace("btn-outline-primary", "btn-success");
+            
+            // Desactivar la tarjeta
+            card.classList.add('disabled');
+        });
     }
 
     // Permite volver a activar si se tocó por error
@@ -134,8 +200,9 @@
     }
 
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+
+    // Cargar productos al iniciar
+    cargarProductos();
 </script>
 </body>
 </html>
-
-
