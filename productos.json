@@ -62,7 +62,7 @@
   { "n": "Gomul helado", "c": "14. helados" },
   { "n": "leche casanto", "c": "15. Lácteos" },
   { "n": "Leche cuisine u.a.t", "c": "15. Lácteos" },
-  { "n": "yogurt tregar narural", "c": "15. Lácteos" },
+  { "n": "yogurt tregar natural", "c": "15. Lácteos" },
   { "n": "yogur tregar natural endulzado", "c": "15. Lácteos" },
   { "n": "yogur batido con cereales la serenísima", "c": "15. Lácteos" },
   { "n": "Yogur danonino bebible 100 g", "c": "15. Lácteos" },
@@ -73,7 +73,6 @@
   { "n": "arroz con leche tregar", "c": "15. Lácteos" },
   { "n": "chocolatada nesquik 200 ml", "c": "15. Lácteos" },
   { "n": "chocolatada la serenísima", "c": "15. Lácteos" },
-  { "n": "queso finlandia hebras 130 g", "c": "15. Lácteos" },
   { "n": "crema de leche cuisine", "c": "15. Lácteos" },
   { "n": "crema de leche ilolay", "c": "15. Lácteos" },
   { "n": "crema de leche la paulina", "c": "15. Lácteos" },
@@ -94,6 +93,7 @@
   { "n": "ricotta tregar", "c": "15. Lácteos" },
   { "n": "Ricotta García", "c": "15. Lácteos" },
   { "n": "Queso en hebras la paulina", "c": "15. Lácteos" },
+  { "n": "queso finlandia hebras 130 g", "c": "15. Lácteos" },
   { "n": "Perejil", "c": "16. Verdulería" },
   { "n": "Rúcula 1 unidad", "c": "16. Verdulería" },
   { "n": "Espinaca 1 unidad", "c": "16. Verdulería" },
@@ -137,6 +137,7 @@
   { "n": "Azúcar impalpable", "c": "26. Sector yerbas y café" },
   { "n": "Harina Leudante fortificada", "c": "27. Sector harina" }
 ]
+
 
 
 
