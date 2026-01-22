@@ -161,6 +161,7 @@
   { "n": "café dolca cappuccino 225 g", "c": "26. Sector yerbas y café" },
   { "n": "café dolca cortado 125 g", "c": "26. Sector yerbas y café" },
   { "n": "café dolca origenes", "c": "26. Sector yerbas y café" },
+  { "n": "Cápsulas Nescafé", "c": "26. Sector yerbas y café" },
   { "n": "edulcorante chuker", "c": "26. Sector yerbas y café" },
   { "n": "edulcorante hileret clásico liquido", "c": "26. Sector yerbas y café" },
   { "n": "té manzanilla", "c": "26. Sector yerbas y café" },
@@ -187,5 +188,6 @@
   { "n": "coco rallado alicante", "c": "27. Legumbres y harinas" },
   { "n": "coco rallado chango", "c": "27. Legumbres y harinas" }
 ]
+
 
 
