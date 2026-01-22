@@ -129,6 +129,9 @@
   { "n": "Sandia baby", "c": "16. Verdulería" },
   { "n": "Arándanos 125 g", "c": "16. Verdulería" },
   { "n": "Bizcochos Don satur salado", "c": "18. Galletas dulces y saladas" },
+  { "n": "vainilla cuisine", "c": "18. Galletas dulces y saladas" },
+  { "n": "vainilla bimbo", "c": "18. Galletas dulces y saladas" },
+  { "n": "pozo vainilla", "c": "18. Galletas dulces y saladas" },
   { "n": "Voligoma", "c": "19. Librería y jugueteria" },
   { "n": "Boya new clor", "c": "20. Sector todo para la piscina" },
   { "n": "Mermelada campagnola frutilla", "c": "21. Dulce de leche y mermeladas" },
@@ -184,4 +187,5 @@
   { "n": "coco rallado alicante", "c": "27. Legumbres y harinas" },
   { "n": "coco rallado chango", "c": "27. Legumbres y harinas" }
 ]
+
 
