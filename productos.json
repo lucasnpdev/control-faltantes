@@ -176,6 +176,7 @@
   { "n": "café dolca cortado 125 g", "c": "26. Sector yerbas y café" },
   { "n": "café dolca origenes", "c": "26. Sector yerbas y café" },
   { "n": "Cápsulas Nescafé", "c": "26. Sector yerbas y café" },
+  { "n": "capsulas nescafe", "c": "26. Sector yerbas y café" },
   { "n": "edulcorante chuker", "c": "26. Sector yerbas y café" },
   { "n": "edulcorante hileret clásico liquido", "c": "26. Sector yerbas y café" },
   { "n": "té manzanilla", "c": "26. Sector yerbas y café" },
@@ -267,4 +268,5 @@
   { "n": "Alimento húmedo para gato", "c": "38. Alimentos para mascotas" },
   { "n": "Alimento húmedo para perro", "c": "38. Alimentos para mascotas" }
 ]
+
 
