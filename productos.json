@@ -7,6 +7,10 @@
   { "n": "insecticida k-othrina", "c": "00. Desactivar siempre" },
   { "n": "Fertilizante terrafertil potting", "c": "00. Desactivar siempre" },
   { "n": "axe bizarrap", "c": "00. Desactivar siempre" },
+  { "n": "provoletera cast iron", "c": "00. Desactivar siempre" },
+  { "n": "marshmallow", "c": "00. Desactivar siempre" },
+  { "n": "chips terrafertil", "c": "00. Desactivar siempre" },
+  { "n": "tierra fe jardín terrafertil 20 L", "c": "00. Desactivar siempre" },
   { "n": "gancho 3m command 450 g", "c": "00. Desactivar siempre" },
   { "n": "lámpara candela gota 5w", "c": "00. Desactivar siempre" },
   { "n": "marcadores filgo pinto 10 unidades", "c": "00. Desactivar siempre" },
@@ -159,6 +163,8 @@
   { "n": "vainilla cuisine", "c": "18. Galletas dulces y saladas" },
   { "n": "vainilla bimbo", "c": "18. Galletas dulces y saladas" },
   { "n": "pozo vainilla", "c": "18. Galletas dulces y saladas" },
+  { "n": "galletitas traviata", "c": "18. Galletas dulces y saladas" },
+  { "n": "Galletitas melba", "c": "18. Galletas dulces y saladas" },
   { "n": "Galletitas terrabusi melba rellenas 120 g", "c": "18. Galletas dulces y saladas" },
   { "n": "Voligoma", "c": "19. Librería y jugueteria" },
   { "n": "Boya new clor", "c": "20. Sector todo para la piscina" },
@@ -188,6 +194,8 @@
   { "n": "Yerba mate cruz de malta", "c": "26. Sector yerbas y café" },
   { "n": "Yerba la merced", "c": "26. Sector yerbas y café" },
   { "n": "Yerba Playadito", "c": "26. Sector yerbas y café" },
+  { "n": "cruz de malta", "c": "26. Sector yerbas y café" },
+  { "n": "yerba canarias", "c": "26. Sector yerbas y café" },
   { "n": "Yerba mate nobleza gaucha", "c": "26. Sector yerbas y café" },
   { "n": "cappuccino la virginia tradicional", "c": "26. Sector yerbas y café" },
   { "n": "café dolca cappuccino 225 g", "c": "26. Sector yerbas y café" },
@@ -283,8 +291,6 @@
   { "n": "papas lay 85 g", "c": "35. Papas fritas & snacks" },
   { "n": "papas lay 134 g", "c": "35. Papas fritas & snacks" },
   { "n": "papas lay 230 g", "c": "35. Papas fritas & snacks" },
-  { "n": "Alimento húmedo para gato", "c": "38. Alimentos para mascotas" },
-  { "n": "Alimento húmedo para perro", "c": "38. Alimentos para mascotas" },
   { "n": "papa lay 330 g", "c": "35. Papas fritas & snacks" },
   { "n": "papa pehuamar", "c": "35. Papas fritas & snacks" },
   { "n": "doritos 40 g", "c": "35. Papas fritas & snacks" },
@@ -324,6 +330,7 @@
   { "n": "alimento húmedo para gato cat chow 85g", "c": "38. Alimento mascotas" },
   { "n": "piedras sanitarias", "c": "38. Alimento mascotas" }
 ]
+
 
 
 
