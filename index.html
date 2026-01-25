@@ -246,6 +246,10 @@
 
     <div class="container mt-3">
         <div id="listaProductos"></div>
+        <!-- Botón de emergencia para recargar desde JSON -->
+        <div class="text-center mt-3" id="errorHelper" style="display: none;">
+            <button class="btn btn-warning" onclick="forzarCargaJSON()">🔄 Forzar carga desde productos.json</button>
+        </div>
     </div>
     
     <!-- Botón Admin (solo visible para admin) -->
@@ -333,27 +337,46 @@
     async function cargarDatos() {
         try {
             // Intentar cargar productos desde storage
-            const stored = await window.storage.get('productos-compartidos', true);
+            let loaded = false;
             
-            if (stored && stored.value) {
-                productos = JSON.parse(stored.value);
-                console.log('Productos cargados desde storage');
-            } else {
-                // Primera vez: cargar desde JSON
-                const response = await fetch('productos.json');
-                productos = await response.json();
-                await guardarProductosStorage();
-                console.log('Productos cargados desde JSON inicial');
+            try {
+                const stored = await window.storage.get('productos-compartidos', true);
+                if (stored && stored.value) {
+                    productos = JSON.parse(stored.value);
+                    console.log('Productos cargados desde storage');
+                    loaded = true;
+                }
+            } catch (storageError) {
+                console.log('No hay productos en storage, cargando desde JSON...');
+            }
+            
+            // Si no hay en storage, cargar desde JSON
+            if (!loaded) {
+                try {
+                    const response = await fetch('productos.json');
+                    if (!response.ok) throw new Error('Error cargando JSON');
+                    productos = await response.json();
+                    await guardarProductosStorage();
+                    console.log('Productos cargados desde JSON inicial y guardados en storage');
+                } catch (jsonError) {
+                    console.error('Error cargando JSON:', jsonError);
+                    alert('⚠️ Error: No se pudo cargar productos.json. Verifica que el archivo esté en la misma carpeta.');
+                    productos = [];
+                }
             }
             
             // Cargar productos desactivados
-            const desactivados = await window.storage.get('productos-desactivados', true);
-            if (desactivados && desactivados.value) {
-                productosDesactivados = JSON.parse(desactivados.value);
+            try {
+                const desactivados = await window.storage.get('productos-desactivados', true);
+                if (desactivados && desactivados.value) {
+                    productosDesactivados = JSON.parse(desactivados.value);
+                }
+            } catch (error) {
+                productosDesactivados = [];
             }
             
         } catch (error) {
-            console.error('Error cargando datos:', error);
+            console.error('Error general cargando datos:', error);
         }
     }
 
@@ -509,6 +532,10 @@
 
         if (filtrados.length === 0) {
             listaDiv.innerHTML = '<div class="alert alert-info">No se encontraron productos</div>';
+            // Mostrar botón de ayuda si no hay productos
+            if (productos.length === 0) {
+                document.getElementById('errorHelper').style.display = 'block';
+            }
         }
     }
 
@@ -646,6 +673,36 @@
     // Event listeners
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
     document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
+    
+    // Función de emergencia para forzar carga desde JSON
+    async function forzarCargaJSON() {
+        try {
+            console.log('Intentando cargar productos.json...');
+            const response = await fetch('productos.json');
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const text = await response.text();
+            console.log('JSON raw:', text.substring(0, 100));
+            
+            productos = JSON.parse(text);
+            await guardarProductosStorage();
+            
+            alert(`✅ ${productos.length} productos cargados correctamente`);
+            document.getElementById('errorHelper').style.display = 'none';
+            
+            if (currentUser) {
+                crearCategorias();
+                renderizar();
+            }
+        } catch (error) {
+            console.error('Error detallado:', error);
+            alert(`❌ Error: ${error.message}\n\nVerifica que productos.json esté en la misma carpeta que el HTML.`);
+        }
+    }
     
     // Cerrar modales con click fuera
     document.querySelectorAll('.modal').forEach(modal => {
