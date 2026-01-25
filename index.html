@@ -9,13 +9,75 @@
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #333; --border: #ddd; }
         body.dark-mode { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --border: #333; }
 
-        body { background-color: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 30px; }
+        body { background-color: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 30px; margin: 0; }
+        
+        /* Pantalla de selección de usuarios */
+        #userSelection {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            padding: 20px;
+        }
+        
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .user-card.admin {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .user-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .user-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* App principal */
+        #mainApp {
+            display: none;
+        }
         
         .header-app {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+        }
+        
+        .user-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
         }
 
         .search-container { 
@@ -30,7 +92,6 @@
             transition: all 0.2s; color: var(--text);
         }
         
-        /* Resaltado específico para categoría 00 */
         .product-card.category-zero {
             border-left-color: #ff4d4d !important;
             background-color: rgba(255, 77, 77, 0.05);
@@ -76,81 +137,341 @@
             border-radius: 8px; padding: 5px 10px; color: var(--text);
             font-size: 1.2rem;
         }
+        
+        /* Admin Panel */
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .btn-group-custom {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-<div class="search-container">
-    <div class="header-app">
-        <h4 class="m-0">🛒 Control Faltantes</h4>
-        <button class="theme-toggle-header" onclick="toggleDarkMode()" id="themeBtn">🌙</button>
+<!-- Selección de Usuario -->
+<div id="userSelection">
+    <div class="user-grid">
+        <div class="user-card" onclick="selectUser('Valen')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Valen</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Abi')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Abi</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Gabriel')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Gabriel</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Fabri')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Fabri</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Eros')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Eros</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Lucas')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Lucas</div>
+        </div>
+        <div class="user-card admin" onclick="loginAdmin()">
+            <div class="user-icon">🔐</div>
+            <div class="user-name">Admin</div>
+        </div>
     </div>
-    
-    <input type="text" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" placeholder="Buscar producto o sector...">
-    
-    <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;"></div>
 </div>
 
-<div class="container mt-3">
-    <div id="listaProductos"></div>
+<!-- App Principal -->
+<div id="mainApp">
+    <div class="search-container">
+        <div class="header-app">
+            <h4 class="m-0">🛒 Control Faltantes</h4>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span class="user-badge" onclick="cambiarUsuario()" id="currentUser"></span>
+                <button class="theme-toggle-header" onclick="toggleDarkMode()" id="themeBtn">🌙</button>
+            </div>
+        </div>
+        
+        <input type="text" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" placeholder="Buscar producto o sector...">
+        
+        <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;"></div>
+    </div>
+
+    <div class="container mt-3">
+        <div id="listaProductos"></div>
+    </div>
+    
+    <!-- Botón Admin (solo visible para admin) -->
+    <button class="admin-btn" id="adminBtn" style="display: none;" onclick="openAdminPanel()">⚙️</button>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal" id="adminModal">
+    <div class="modal-content">
+        <h3>🔐 Acceso Admin</h3>
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" id="adminPassword" class="form-control" placeholder="Ingresa la contraseña">
+        </div>
+        <div class="btn-group-custom">
+            <button class="btn btn-primary flex-grow-1" onclick="verificarAdmin()">Ingresar</button>
+            <button class="btn btn-secondary" onclick="closeModal('adminModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Admin Panel -->
+<div class="modal" id="adminPanelModal">
+    <div class="modal-content">
+        <h3>⚙️ Panel de Administración</h3>
+        
+        <div class="btn-group-custom">
+            <button class="btn btn-success flex-grow-1" onclick="openAddProduct()">➕ Agregar Producto</button>
+            <button class="btn btn-warning flex-grow-1" onclick="openManageProducts()">✏️ Gestionar</button>
+        </div>
+        
+        <button class="btn btn-secondary w-100 mt-3" onclick="closeModal('adminPanelModal')">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal Agregar/Editar Producto -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <h3 id="productModalTitle">➕ Agregar Producto</h3>
+        <div class="form-group">
+            <label>Nombre del producto:</label>
+            <input type="text" id="productName" class="form-control" placeholder="Ej: Leche La Serenísima">
+        </div>
+        <div class="form-group">
+            <label>Categoría:</label>
+            <input type="text" id="productCategory" class="form-control" placeholder="Ej: 15. Lácteos" list="categoriasList">
+            <datalist id="categoriasList"></datalist>
+        </div>
+        <div class="btn-group-custom">
+            <button class="btn btn-primary flex-grow-1" onclick="guardarProducto()">Guardar</button>
+            <button class="btn btn-secondary" onclick="closeModal('productModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gestionar Productos -->
+<div class="modal" id="manageModal">
+    <div class="modal-content">
+        <h3>✏️ Gestionar Productos</h3>
+        <input type="text" id="manageSearch" class="form-control mb-3" placeholder="Buscar producto...">
+        <div id="manageList" style="max-height: 400px; overflow-y: auto;"></div>
+        <button class="btn btn-secondary w-100 mt-3" onclick="closeModal('manageModal')">Cerrar</button>
+    </div>
 </div>
 
 <script>
     let productos = [];
+    let currentUser = null;
+    let isAdmin = false;
+    let categoriaSeleccionada = null;
+    let productosDesactivados = [];
+    let editingProductIndex = null;
+    
     const listaDiv = document.getElementById('listaProductos');
     const searchInput = document.getElementById('searchInput');
     const categoryBar = document.getElementById('categoryBar');
-    let categoriaSeleccionada = null;
+    const ADMIN_PASSWORD = 'Lakis154629617';
 
-    // Cargar productos desde JSON
-    async function cargarProductos() {
+    // Inicialización
+    async function init() {
+        await cargarDatos();
+    }
+
+    // Cargar datos desde storage o JSON inicial
+    async function cargarDatos() {
         try {
-            const response = await fetch('productos.json');
-            productos = await response.json();
-            crearCategorias();
-            renderizar();
+            // Intentar cargar productos desde storage
+            const stored = await window.storage.get('productos-compartidos', true);
+            
+            if (stored && stored.value) {
+                productos = JSON.parse(stored.value);
+                console.log('Productos cargados desde storage');
+            } else {
+                // Primera vez: cargar desde JSON
+                const response = await fetch('productos.json');
+                productos = await response.json();
+                await guardarProductosStorage();
+                console.log('Productos cargados desde JSON inicial');
+            }
+            
+            // Cargar productos desactivados
+            const desactivados = await window.storage.get('productos-desactivados', true);
+            if (desactivados && desactivados.value) {
+                productosDesactivados = JSON.parse(desactivados.value);
+            }
+            
         } catch (error) {
-            console.error('Error cargando productos:', error);
-            listaDiv.innerHTML = '<div class="alert alert-danger">Error al cargar los productos. Verifica que el archivo productos.json esté en la misma carpeta.</div>';
+            console.error('Error cargando datos:', error);
         }
     }
 
+    // Guardar productos en storage compartido
+    async function guardarProductosStorage() {
+        try {
+            await window.storage.set('productos-compartidos', JSON.stringify(productos), true);
+        } catch (error) {
+            console.error('Error guardando productos:', error);
+        }
+    }
+
+    // Guardar desactivados en storage compartido
+    async function guardarDesactivados() {
+        try {
+            await window.storage.set('productos-desactivados', JSON.stringify(productosDesactivados), true);
+        } catch (error) {
+            console.error('Error guardando desactivados:', error);
+        }
+    }
+
+    // Selección de usuario
+    async function selectUser(nombre) {
+        currentUser = nombre;
+        isAdmin = false;
+        document.getElementById('userSelection').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('currentUser').textContent = nombre;
+        document.getElementById('adminBtn').style.display = 'none';
+        
+        // Cargar categoría guardada del usuario
+        try {
+            const savedCat = await window.storage.get(`user-${nombre}-categoria`, false);
+            if (savedCat && savedCat.value) {
+                categoriaSeleccionada = savedCat.value;
+            }
+        } catch (error) {
+            categoriaSeleccionada = null;
+        }
+        
+        crearCategorias();
+        renderizar();
+    }
+
+    // Login Admin
+    function loginAdmin() {
+        document.getElementById('adminModal').classList.add('show');
+        document.getElementById('adminPassword').value = '';
+    }
+
+    function verificarAdmin() {
+        const pass = document.getElementById('adminPassword').value;
+        if (pass === ADMIN_PASSWORD) {
+            currentUser = 'Admin';
+            isAdmin = true;
+            closeModal('adminModal');
+            document.getElementById('userSelection').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUser').textContent = '👑 Admin';
+            document.getElementById('adminBtn').style.display = 'block';
+            crearCategorias();
+            renderizar();
+        } else {
+            alert('❌ Contraseña incorrecta');
+        }
+    }
+
+    // Cambiar usuario
+    function cambiarUsuario() {
+        currentUser = null;
+        isAdmin = false;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('userSelection').style.display = 'flex';
+    }
+
+    // Crear categorías
     function crearCategorias() {
+        categoryBar.innerHTML = '';
         const categorias = [...new Set(productos.map(p => p.c))].sort();
         
-        // Agregar botón "Todas"
+        // Botón "Todas"
         const btnTodas = document.createElement('span');
-        btnTodas.className = 'badge-cat active';
+        btnTodas.className = 'badge-cat';
+        if (!categoriaSeleccionada) btnTodas.classList.add('active');
         btnTodas.textContent = 'Todas';
-        btnTodas.onclick = () => filtrarPorCategoria(null);
+        btnTodas.onclick = () => filtrarPorCategoria(null, btnTodas);
         categoryBar.appendChild(btnTodas);
         
-        // Agregar categorías
+        // Categorías
         categorias.forEach(cat => {
             const badge = document.createElement('span');
             badge.className = 'badge-cat';
+            if (cat.startsWith('00')) badge.classList.add('category-zero-badge');
+            if (categoriaSeleccionada === cat) badge.classList.add('active');
             badge.textContent = cat;
-            badge.onclick = () => filtrarPorCategoria(cat);
-            
-            // Agregar clase especial para categoría 00
-            if (cat.startsWith('00')) {
-                badge.classList.add('category-zero-badge');
-            }
-            
+            badge.onclick = () => filtrarPorCategoria(cat, badge);
             categoryBar.appendChild(badge);
         });
     }
 
-    function filtrarPorCategoria(categoria) {
+    async function filtrarPorCategoria(categoria, element) {
         categoriaSeleccionada = categoria;
         
-        // Actualizar badges activos
-        document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+        // Guardar categoría del usuario
+        if (!isAdmin && currentUser) {
+            try {
+                await window.storage.set(`user-${currentUser}-categoria`, categoria || '', false);
+            } catch (error) {
+                console.error('Error guardando categoría:', error);
+            }
+        }
         
+        document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
         renderizar();
     }
 
+    // Renderizar productos
     function renderizar(filtro = "") {
         listaDiv.innerHTML = "";
         const f = filtro.toLowerCase();
@@ -159,27 +480,29 @@
             p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
         );
 
-        // Filtrar por categoría si hay una seleccionada
         if (categoriaSeleccionada) {
             filtrados = filtrados.filter(p => p.c === categoriaSeleccionada);
         }
 
         filtrados.forEach((p, index) => {
+            const globalIndex = productos.findIndex(prod => prod.n === p.n && prod.c === p.c);
+            const isDisabled = productosDesactivados.includes(globalIndex);
+            
             const card = document.createElement('div');
             card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            if (isDisabled) card.classList.add('disabled');
+            if (p.c.startsWith('00')) card.classList.add('category-zero');
             
-            // Agregar clase especial para categoría 00
-            if (p.c.startsWith('00')) {
-                card.classList.add('category-zero');
-            }
-            
-            card.id = `card-${index}`;
+            card.id = `card-${globalIndex}`;
             card.innerHTML = `
-                <div onclick="toggleManual('card-${index}')" style="flex-grow: 1;">
+                <div onclick="toggleManual(${globalIndex})" style="flex-grow: 1;">
                     <div class="category-label">${p.c}</div>
                     <div class="product-name">${p.n}</div>
                 </div>
-                <button class="btn btn-outline-primary btn-sm ms-2" onclick="copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', this, 'card-${index}')">Copiar</button>
+                <button class="btn ${isDisabled ? 'btn-success' : 'btn-outline-primary'} btn-sm ms-2" 
+                        onclick="copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', ${globalIndex})">
+                    ${isDisabled ? '✓' : 'Copiar'}
+                </button>
             `;
             listaDiv.appendChild(card);
         });
@@ -189,34 +512,150 @@
         }
     }
 
-    // Copia y desactiva al mismo tiempo
-    function copiarYDesactivar(texto, btn, cardId) {
-        navigator.clipboard.writeText(texto).then(() => {
-            const card = document.getElementById(cardId);
-            
-            // Efecto visual en el botón
-            btn.innerText = "✓";
-            btn.classList.replace("btn-outline-primary", "btn-success");
-            
-            // Desactivar la tarjeta
-            card.classList.add('disabled');
-        });
+    // Copiar y desactivar
+    async function copiarYDesactivar(texto, globalIndex) {
+        navigator.clipboard.writeText(texto);
+        
+        if (!productosDesactivados.includes(globalIndex)) {
+            productosDesactivados.push(globalIndex);
+            await guardarDesactivados();
+        }
+        
+        renderizar(searchInput.value);
     }
 
-    // Permite volver a activar si se tocó por error
-    function toggleManual(cardId) {
-        document.getElementById(cardId).classList.toggle('disabled');
+    // Toggle manual
+    async function toggleManual(globalIndex) {
+        const idx = productosDesactivados.indexOf(globalIndex);
+        if (idx > -1) {
+            productosDesactivados.splice(idx, 1);
+        } else {
+            productosDesactivados.push(globalIndex);
+        }
+        await guardarDesactivados();
+        renderizar(searchInput.value);
     }
 
+    // Dark mode
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
-        document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        document.getElementById('themeBtn').innerText = 
+            document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     }
 
-    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+    // Admin functions
+    function openAdminPanel() {
+        document.getElementById('adminPanelModal').classList.add('show');
+    }
 
-    // Cargar productos al iniciar
-    cargarProductos();
+    function openAddProduct() {
+        editingProductIndex = null;
+        document.getElementById('productModalTitle').textContent = '➕ Agregar Producto';
+        document.getElementById('productName').value = '';
+        document.getElementById('productCategory').value = '';
+        actualizarListaCategorias();
+        closeModal('adminPanelModal');
+        document.getElementById('productModal').classList.add('show');
+    }
+
+    function actualizarListaCategorias() {
+        const datalist = document.getElementById('categoriasList');
+        const categorias = [...new Set(productos.map(p => p.c))].sort();
+        datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
+    }
+
+    async function guardarProducto() {
+        const nombre = document.getElementById('productName').value.trim();
+        const categoria = document.getElementById('productCategory').value.trim();
+        
+        if (!nombre || !categoria) {
+            alert('⚠️ Completa todos los campos');
+            return;
+        }
+        
+        if (editingProductIndex !== null) {
+            productos[editingProductIndex] = { n: nombre, c: categoria };
+        } else {
+            productos.push({ n: nombre, c: categoria });
+        }
+        
+        await guardarProductosStorage();
+        closeModal('productModal');
+        crearCategorias();
+        renderizar();
+        alert('✅ Producto guardado correctamente');
+    }
+
+    function openManageProducts() {
+        closeModal('adminPanelModal');
+        document.getElementById('manageModal').classList.add('show');
+        renderManageList();
+    }
+
+    function renderManageList(filtro = "") {
+        const manageList = document.getElementById('manageList');
+        const f = filtro.toLowerCase();
+        const filtrados = productos.filter(p => 
+            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
+        );
+        
+        manageList.innerHTML = filtrados.map((p, idx) => {
+            const globalIdx = productos.indexOf(p);
+            return `
+                <div class="card mb-2 p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">${p.c}</small>
+                            <div><strong>${p.n}</strong></div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning" onclick="editarProducto(${globalIdx})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${globalIdx})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function editarProducto(index) {
+        editingProductIndex = index;
+        const p = productos[index];
+        document.getElementById('productModalTitle').textContent = '✏️ Editar Producto';
+        document.getElementById('productName').value = p.n;
+        document.getElementById('productCategory').value = p.c;
+        actualizarListaCategorias();
+        closeModal('manageModal');
+        document.getElementById('productModal').classList.add('show');
+    }
+
+    async function eliminarProducto(index) {
+        if (confirm('¿Seguro que deseas eliminar este producto?')) {
+            productos.splice(index, 1);
+            await guardarProductosStorage();
+            renderManageList();
+            crearCategorias();
+            renderizar();
+        }
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+    document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
+    
+    // Cerrar modales con click fuera
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+    });
+
+    // Iniciar
+    init();
 </script>
 </body>
 </html>
