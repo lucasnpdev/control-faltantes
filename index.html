@@ -411,7 +411,23 @@
         try {
             await cargarDatosFirebase();
             ocultarLoading();
-            mostrarSeleccionUsuario();
+            
+            // Verificar si hay un usuario guardado
+            const savedUser = localStorage.getItem('ultimo-usuario');
+            const savedIsAdmin = localStorage.getItem('ultimo-es-admin') === 'true';
+            
+            if (savedUser) {
+                // Auto-login con el último usuario
+                if (savedIsAdmin) {
+                    // Si era admin, pedir contraseña de nuevo
+                    mostrarSeleccionUsuario();
+                } else {
+                    // Login automático para usuarios normales
+                    await selectUser(savedUser);
+                }
+            } else {
+                mostrarSeleccionUsuario();
+            }
         } catch (error) {
             console.error('Error en inicialización:', error);
             alert('Error al cargar la aplicación. Verifica tu conexión a internet.');
@@ -440,12 +456,15 @@
     // Cargar datos desde Firebase
     async function cargarDatosFirebase() {
         try {
+            console.log('🔄 Iniciando conexión con Firebase...');
+            
             // Verificar si hay productos en Firebase
             const snapshot = await get(productosRef);
             
             if (snapshot.exists()) {
                 productos = snapshot.val();
                 console.log('✅ Productos cargados desde Firebase:', productos.length);
+                alert(`✅ Conectado a Firebase. ${productos.length} productos cargados.`);
             } else {
                 // Primera vez: cargar desde JSON y subir a Firebase
                 console.log('🔄 Primera carga: importando desde productos.json...');
@@ -457,38 +476,54 @@
                 productos = await response.json();
                 await set(productosRef, productos);
                 console.log('✅ Productos importados a Firebase:', productos.length);
+                alert(`✅ ${productos.length} productos importados a Firebase por primera vez.`);
             }
             
             // Escuchar cambios en productos en tiempo real
             onValue(productosRef, (snapshot) => {
+                console.log('🔄 Cambio detectado en productos Firebase');
                 if (snapshot.exists()) {
                     productos = snapshot.val();
                     if (currentUser) {
                         crearCategorias();
                         renderizar();
                         mostrarSyncIndicator();
+                        console.log('✅ UI actualizada con nuevos productos');
                     }
                 }
+            }, (error) => {
+                console.error('❌ Error en listener de productos:', error);
+                alert('❌ Error sincronizando productos: ' + error.message);
             });
             
             // Cargar y escuchar productos desactivados
             const desactivadosSnapshot = await get(desactivadosRef);
             if (desactivadosSnapshot.exists()) {
                 productosDesactivados = desactivadosSnapshot.val();
+                console.log('✅ Productos desactivados cargados:', productosDesactivados.length);
+            } else {
+                productosDesactivados = [];
+                await set(desactivadosRef, []);
+                console.log('✅ Inicializado array de desactivados en Firebase');
             }
             
             onValue(desactivadosRef, (snapshot) => {
+                console.log('🔄 Cambio detectado en desactivados Firebase');
                 if (snapshot.exists()) {
                     productosDesactivados = snapshot.val();
                     if (currentUser) {
                         renderizar();
                         mostrarSyncIndicator();
+                        console.log('✅ UI actualizada con desactivados');
                     }
                 }
+            }, (error) => {
+                console.error('❌ Error en listener de desactivados:', error);
             });
             
         } catch (error) {
-            console.error('Error cargando datos de Firebase:', error);
+            console.error('❌ Error cargando datos de Firebase:', error);
+            alert('❌ Error de Firebase: ' + error.message + '\n\nVerifica:\n1. Conexión a internet\n2. Reglas de Firebase configuradas\n3. URL de Firebase correcta');
             throw error;
         }
     }
@@ -496,20 +531,23 @@
     // Guardar productos en Firebase
     async function guardarProductosFirebase() {
         try {
+            console.log('💾 Guardando productos en Firebase...');
             await set(productosRef, productos);
-            console.log('✅ Productos guardados en Firebase');
+            console.log('✅ Productos guardados en Firebase exitosamente');
         } catch (error) {
-            console.error('Error guardando productos:', error);
-            alert('Error al guardar los productos. Intenta de nuevo.');
+            console.error('❌ Error guardando productos:', error);
+            alert('❌ Error al guardar productos: ' + error.message);
         }
     }
 
     // Guardar desactivados en Firebase
     async function guardarDesactivadosFirebase() {
         try {
+            console.log('💾 Guardando desactivados en Firebase...', productosDesactivados.length);
             await set(desactivadosRef, productosDesactivados);
+            console.log('✅ Desactivados guardados en Firebase');
         } catch (error) {
-            console.error('Error guardando desactivados:', error);
+            console.error('❌ Error guardando desactivados:', error);
         }
     }
 
@@ -517,6 +555,11 @@
     window.selectUser = async function(nombre) {
         currentUser = nombre;
         isAdmin = false;
+        
+        // Guardar usuario para la próxima vez
+        localStorage.setItem('ultimo-usuario', nombre);
+        localStorage.setItem('ultimo-es-admin', 'false');
+        
         document.getElementById('userSelection').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUser').textContent = nombre;
@@ -526,8 +569,23 @@
         const savedCat = localStorage.getItem(`user-${nombre}-categoria`);
         categoriaSeleccionada = savedCat || null;
         
+        // Cargar modo oscuro del usuario
+        const darkMode = localStorage.getItem(`user-${nombre}-darkmode`) === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeBtn').innerText = '☀️';
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('themeBtn').innerText = '🌙';
+        }
+        
         crearCategorias();
         renderizar();
+        
+        // Scroll a la categoría guardada después de que se creen
+        setTimeout(() => {
+            scrollToActiveCategory();
+        }, 100);
     };
 
     // Login Admin
@@ -541,11 +599,27 @@
         if (pass === ADMIN_PASSWORD) {
             currentUser = 'Admin';
             isAdmin = true;
+            
+            // Guardar admin para la próxima vez (pero seguirá pidiendo contraseña)
+            localStorage.setItem('ultimo-usuario', 'Admin');
+            localStorage.setItem('ultimo-es-admin', 'true');
+            
             closeModal('adminModal');
             document.getElementById('userSelection').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('currentUser').textContent = '👑 Admin';
             document.getElementById('adminBtn').style.display = 'block';
+            
+            // Cargar modo oscuro del admin
+            const darkMode = localStorage.getItem('user-Admin-darkmode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeBtn').innerText = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeBtn').innerText = '🌙';
+            }
+            
             crearCategorias();
             renderizar();
         } else {
@@ -555,6 +629,10 @@
 
     // Cambiar usuario
     window.cambiarUsuario = function() {
+        // Limpiar usuario guardado
+        localStorage.removeItem('ultimo-usuario');
+        localStorage.removeItem('ultimo-es-admin');
+        
         currentUser = null;
         isAdmin = false;
         document.getElementById('mainApp').style.display = 'none';
@@ -590,13 +668,24 @@
         categoriaSeleccionada = categoria;
         
         // Guardar categoría del usuario
-        if (!isAdmin && currentUser) {
+        if (currentUser) {
             localStorage.setItem(`user-${currentUser}-categoria`, categoria || '');
         }
         
         document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
         element.classList.add('active');
         renderizar();
+        
+        // Scroll para mantener visible la categoría activa
+        scrollToActiveCategory();
+    }
+    
+    // Función para hacer scroll a la categoría activa
+    function scrollToActiveCategory() {
+        const activeButton = document.querySelector('.badge-cat.active');
+        if (activeButton) {
+            activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     }
 
     // Renderizar productos
@@ -667,8 +756,13 @@
     // Dark mode
     window.toggleDarkMode = function() {
         document.body.classList.toggle('dark-mode');
-        document.getElementById('themeBtn').innerText = 
-            document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeBtn').innerText = isDark ? '☀️' : '🌙';
+        
+        // Guardar preferencia del usuario
+        if (currentUser) {
+            localStorage.setItem(`user-${currentUser}-darkmode`, isDark);
+        }
     };
 
     // Admin functions
