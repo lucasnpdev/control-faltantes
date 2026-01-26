@@ -555,7 +555,6 @@
                 }
             }, (error) => {
                 console.error('❌ Error en listener de productos:', error);
-                alert('❌ Error sincronizando productos: ' + error.message);
             });
             
             // Cargar y escuchar productos desactivados
@@ -585,7 +584,7 @@
             
         } catch (error) {
             console.error('❌ Error cargando datos de Firebase:', error);
-            alert('❌ Error de Firebase: ' + error.message + '\n\nVerifica:\n1. Conexión a internet\n2. Reglas de Firebase configuradas\n3. URL de Firebase correcta');
+            alert('❌ Error crítico de Firebase. Verifica tu conexión a internet.');
             throw error;
         }
     }
