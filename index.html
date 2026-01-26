@@ -405,11 +405,75 @@
     // Referencias Firebase
     const productosRef = ref(database, 'productos');
     const desactivadosRef = ref(database, 'productos-desactivados');
+    const ultimoResetRef = ref(database, 'ultimo-reset');
+
+    // Verificar y ejecutar reset diario
+    async function verificarResetDiario() {
+        try {
+            const snapshot = await get(ultimoResetRef);
+            const ahora = new Date();
+            
+            // Convertir a hora Argentina (UTC-3)
+            const horaArgentina = new Date(ahora.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+            const fechaHoy = horaArgentina.toISOString().split('T')[0]; // YYYY-MM-DD
+            
+            let ultimoReset = null;
+            if (snapshot.exists()) {
+                ultimoReset = snapshot.val();
+            }
+            
+            console.log('📅 Fecha hoy (ARG):', fechaHoy);
+            console.log('📅 Último reset:', ultimoReset);
+            
+            // Si no hay reset hoy y ya pasaron las 8 AM
+            const hora = horaArgentina.getHours();
+            const debeResetear = (!ultimoReset || ultimoReset !== fechaHoy) && hora >= 8;
+            
+            if (debeResetear) {
+                console.log('🔄 Ejecutando reset diario...');
+                await ejecutarResetDiario(fechaHoy);
+            } else {
+                console.log('✅ No se necesita reset todavía');
+            }
+        } catch (error) {
+            console.error('❌ Error verificando reset diario:', error);
+        }
+    }
+
+    // Ejecutar reset diario
+    async function ejecutarResetDiario(fechaHoy) {
+        try {
+            // 1. Limpiar todos los productos desactivados
+            productosDesactivados = [];
+            await set(desactivadosRef, []);
+            
+            // 2. Limpiar todas las categorías guardadas de usuarios
+            const usuarios = ['Valen', 'Abi', 'Gabriel', 'Fabri', 'Eros', 'Lucas', 'Admin'];
+            usuarios.forEach(user => {
+                localStorage.removeItem(`user-${user}-categoria`);
+            });
+            
+            // 3. Marcar que ya se hizo el reset hoy
+            await set(ultimoResetRef, fechaHoy);
+            
+            console.log('✅ Reset diario completado');
+            
+            // Si hay un usuario activo, recargar la vista
+            if (currentUser) {
+                categoriaSeleccionada = null;
+                crearCategorias();
+                renderizar();
+            }
+        } catch (error) {
+            console.error('❌ Error ejecutando reset diario:', error);
+        }
+    }
 
     // Inicialización
     async function init() {
         try {
             await cargarDatosFirebase();
+            await verificarResetDiario();
             ocultarLoading();
             
             // Verificar si hay un usuario guardado
@@ -464,7 +528,6 @@
             if (snapshot.exists()) {
                 productos = snapshot.val();
                 console.log('✅ Productos cargados desde Firebase:', productos.length);
-                alert(`✅ Conectado a Firebase. ${productos.length} productos cargados.`);
             } else {
                 // Primera vez: cargar desde JSON y subir a Firebase
                 console.log('🔄 Primera carga: importando desde productos.json...');
@@ -476,7 +539,6 @@
                 productos = await response.json();
                 await set(productosRef, productos);
                 console.log('✅ Productos importados a Firebase:', productos.length);
-                alert(`✅ ${productos.length} productos importados a Firebase por primera vez.`);
             }
             
             // Escuchar cambios en productos en tiempo real
