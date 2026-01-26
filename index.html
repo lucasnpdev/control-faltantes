@@ -59,6 +59,37 @@
             font-weight: bold;
         }
         
+        /* Loading spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* App principal */
         #mainApp {
             display: none;
@@ -190,12 +221,39 @@
             gap: 10px;
             margin-top: 20px;
         }
+        
+        .sync-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1002;
+            display: none;
+        }
+        
+        .sync-indicator.syncing {
+            display: block;
+            background: #ffc107;
+        }
     </style>
 </head>
 <body>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div>Cargando productos...</div>
+</div>
+
+<!-- Indicador de sincronización -->
+<div id="syncIndicator" class="sync-indicator">🔄 Sincronizando...</div>
+
 <!-- Selección de Usuario -->
-<div id="userSelection">
+<div id="userSelection" style="display: none;">
     <div class="user-grid">
         <div class="user-card" onclick="selectUser('Valen')">
             <div class="user-icon">👤</div>
@@ -246,13 +304,9 @@
 
     <div class="container mt-3">
         <div id="listaProductos"></div>
-        <!-- Botón de emergencia para recargar desde JSON -->
-        <div class="text-center mt-3" id="errorHelper" style="display: none;">
-            <button class="btn btn-warning" onclick="forzarCargaJSON()">🔄 Forzar carga desde productos.json</button>
-        </div>
     </div>
     
-    <!-- Botón Admin (solo visible para admin) -->
+    <!-- Botón Admin -->
     <button class="admin-btn" id="adminBtn" style="display: none;" onclick="openAdminPanel()">⚙️</button>
 </div>
 
@@ -315,7 +369,27 @@
     </div>
 </div>
 
-<script>
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, set, get, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCfj4L-O-80sVzA7pzqGpZ4bl0iaVEeeeU",
+        authDomain: "control-faltantes.firebaseapp.com",
+        databaseURL: "https://control-faltantes-default-rtdb.firebaseio.com",
+        projectId: "control-faltantes",
+        storageBucket: "control-faltantes.firebasestorage.app",
+        messagingSenderId: "599058830915",
+        appId: "1:599058830915:web:4d48395640d7981c1626f6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Variables globales
     let productos = [];
     let currentUser = null;
     let isAdmin = false;
@@ -327,79 +401,120 @@
     const searchInput = document.getElementById('searchInput');
     const categoryBar = document.getElementById('categoryBar');
     const ADMIN_PASSWORD = 'Lakis154629617';
+    
+    // Referencias Firebase
+    const productosRef = ref(database, 'productos');
+    const desactivadosRef = ref(database, 'productos-desactivados');
 
     // Inicialización
     async function init() {
-        await cargarDatos();
-    }
-
-    // Cargar datos desde storage o JSON inicial
-    async function cargarDatos() {
         try {
-            // Intentar cargar productos desde storage
-            let loaded = false;
-            
-            try {
-                const stored = await window.storage.get('productos-compartidos', true);
-                if (stored && stored.value) {
-                    productos = JSON.parse(stored.value);
-                    console.log('Productos cargados desde storage');
-                    loaded = true;
-                }
-            } catch (storageError) {
-                console.log('No hay productos en storage, cargando desde JSON...');
-            }
-            
-            // Si no hay en storage, cargar desde JSON
-            if (!loaded) {
-                try {
-                    const response = await fetch('productos.json');
-                    if (!response.ok) throw new Error('Error cargando JSON');
-                    productos = await response.json();
-                    await guardarProductosStorage();
-                    console.log('Productos cargados desde JSON inicial y guardados en storage');
-                } catch (jsonError) {
-                    console.error('Error cargando JSON:', jsonError);
-                    alert('⚠️ Error: No se pudo cargar productos.json. Verifica que el archivo esté en la misma carpeta.');
-                    productos = [];
-                }
-            }
-            
-            // Cargar productos desactivados
-            try {
-                const desactivados = await window.storage.get('productos-desactivados', true);
-                if (desactivados && desactivados.value) {
-                    productosDesactivados = JSON.parse(desactivados.value);
-                }
-            } catch (error) {
-                productosDesactivados = [];
-            }
-            
+            await cargarDatosFirebase();
+            ocultarLoading();
+            mostrarSeleccionUsuario();
         } catch (error) {
-            console.error('Error general cargando datos:', error);
+            console.error('Error en inicialización:', error);
+            alert('Error al cargar la aplicación. Verifica tu conexión a internet.');
         }
     }
 
-    // Guardar productos en storage compartido
-    async function guardarProductosStorage() {
+    function mostrarLoading(mensaje = 'Cargando productos...') {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingOverlay').querySelector('div:last-child').textContent = mensaje;
+    }
+
+    function ocultarLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function mostrarSeleccionUsuario() {
+        document.getElementById('userSelection').style.display = 'flex';
+    }
+
+    function mostrarSyncIndicator() {
+        const indicator = document.getElementById('syncIndicator');
+        indicator.classList.add('syncing');
+        setTimeout(() => indicator.classList.remove('syncing'), 1000);
+    }
+
+    // Cargar datos desde Firebase
+    async function cargarDatosFirebase() {
         try {
-            await window.storage.set('productos-compartidos', JSON.stringify(productos), true);
+            // Verificar si hay productos en Firebase
+            const snapshot = await get(productosRef);
+            
+            if (snapshot.exists()) {
+                productos = snapshot.val();
+                console.log('✅ Productos cargados desde Firebase:', productos.length);
+            } else {
+                // Primera vez: cargar desde JSON y subir a Firebase
+                console.log('🔄 Primera carga: importando desde productos.json...');
+                mostrarLoading('Importando productos por primera vez...');
+                
+                const response = await fetch('productos.json');
+                if (!response.ok) throw new Error('No se pudo cargar productos.json');
+                
+                productos = await response.json();
+                await set(productosRef, productos);
+                console.log('✅ Productos importados a Firebase:', productos.length);
+            }
+            
+            // Escuchar cambios en productos en tiempo real
+            onValue(productosRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    productos = snapshot.val();
+                    if (currentUser) {
+                        crearCategorias();
+                        renderizar();
+                        mostrarSyncIndicator();
+                    }
+                }
+            });
+            
+            // Cargar y escuchar productos desactivados
+            const desactivadosSnapshot = await get(desactivadosRef);
+            if (desactivadosSnapshot.exists()) {
+                productosDesactivados = desactivadosSnapshot.val();
+            }
+            
+            onValue(desactivadosRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    productosDesactivados = snapshot.val();
+                    if (currentUser) {
+                        renderizar();
+                        mostrarSyncIndicator();
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error cargando datos de Firebase:', error);
+            throw error;
+        }
+    }
+
+    // Guardar productos en Firebase
+    async function guardarProductosFirebase() {
+        try {
+            await set(productosRef, productos);
+            console.log('✅ Productos guardados en Firebase');
         } catch (error) {
             console.error('Error guardando productos:', error);
+            alert('Error al guardar los productos. Intenta de nuevo.');
         }
     }
 
-    // Guardar desactivados en storage compartido
-    async function guardarDesactivados() {
+    // Guardar desactivados en Firebase
+    async function guardarDesactivadosFirebase() {
         try {
-            await window.storage.set('productos-desactivados', JSON.stringify(productosDesactivados), true);
+            await set(desactivadosRef, productosDesactivados);
         } catch (error) {
             console.error('Error guardando desactivados:', error);
         }
     }
 
     // Selección de usuario
-    async function selectUser(nombre) {
+    window.selectUser = async function(nombre) {
         currentUser = nombre;
         isAdmin = false;
         document.getElementById('userSelection').style.display = 'none';
@@ -408,26 +523,20 @@
         document.getElementById('adminBtn').style.display = 'none';
         
         // Cargar categoría guardada del usuario
-        try {
-            const savedCat = await window.storage.get(`user-${nombre}-categoria`, false);
-            if (savedCat && savedCat.value) {
-                categoriaSeleccionada = savedCat.value;
-            }
-        } catch (error) {
-            categoriaSeleccionada = null;
-        }
+        const savedCat = localStorage.getItem(`user-${nombre}-categoria`);
+        categoriaSeleccionada = savedCat || null;
         
         crearCategorias();
         renderizar();
-    }
+    };
 
     // Login Admin
-    function loginAdmin() {
+    window.loginAdmin = function() {
         document.getElementById('adminModal').classList.add('show');
         document.getElementById('adminPassword').value = '';
-    }
+    };
 
-    function verificarAdmin() {
+    window.verificarAdmin = function() {
         const pass = document.getElementById('adminPassword').value;
         if (pass === ADMIN_PASSWORD) {
             currentUser = 'Admin';
@@ -442,15 +551,15 @@
         } else {
             alert('❌ Contraseña incorrecta');
         }
-    }
+    };
 
     // Cambiar usuario
-    function cambiarUsuario() {
+    window.cambiarUsuario = function() {
         currentUser = null;
         isAdmin = false;
         document.getElementById('mainApp').style.display = 'none';
         document.getElementById('userSelection').style.display = 'flex';
-    }
+    };
 
     // Crear categorías
     function crearCategorias() {
@@ -477,16 +586,12 @@
         });
     }
 
-    async function filtrarPorCategoria(categoria, element) {
+    function filtrarPorCategoria(categoria, element) {
         categoriaSeleccionada = categoria;
         
         // Guardar categoría del usuario
         if (!isAdmin && currentUser) {
-            try {
-                await window.storage.set(`user-${currentUser}-categoria`, categoria || '', false);
-            } catch (error) {
-                console.error('Error guardando categoría:', error);
-            }
+            localStorage.setItem(`user-${currentUser}-categoria`, categoria || '');
         }
         
         document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
@@ -518,12 +623,12 @@
             
             card.id = `card-${globalIndex}`;
             card.innerHTML = `
-                <div onclick="toggleManual(${globalIndex})" style="flex-grow: 1;">
+                <div onclick="window.toggleManual(${globalIndex})" style="flex-grow: 1;">
                     <div class="category-label">${p.c}</div>
                     <div class="product-name">${p.n}</div>
                 </div>
                 <button class="btn ${isDisabled ? 'btn-success' : 'btn-outline-primary'} btn-sm ms-2" 
-                        onclick="copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', ${globalIndex})">
+                        onclick="window.copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', ${globalIndex})">
                     ${isDisabled ? '✓' : 'Copiar'}
                 </button>
             `;
@@ -532,50 +637,46 @@
 
         if (filtrados.length === 0) {
             listaDiv.innerHTML = '<div class="alert alert-info">No se encontraron productos</div>';
-            // Mostrar botón de ayuda si no hay productos
-            if (productos.length === 0) {
-                document.getElementById('errorHelper').style.display = 'block';
-            }
         }
     }
 
     // Copiar y desactivar
-    async function copiarYDesactivar(texto, globalIndex) {
+    window.copiarYDesactivar = function(texto, globalIndex) {
         navigator.clipboard.writeText(texto);
         
         if (!productosDesactivados.includes(globalIndex)) {
             productosDesactivados.push(globalIndex);
-            await guardarDesactivados();
+            guardarDesactivadosFirebase();
         }
         
         renderizar(searchInput.value);
-    }
+    };
 
     // Toggle manual
-    async function toggleManual(globalIndex) {
+    window.toggleManual = function(globalIndex) {
         const idx = productosDesactivados.indexOf(globalIndex);
         if (idx > -1) {
             productosDesactivados.splice(idx, 1);
         } else {
             productosDesactivados.push(globalIndex);
         }
-        await guardarDesactivados();
+        guardarDesactivadosFirebase();
         renderizar(searchInput.value);
-    }
+    };
 
     // Dark mode
-    function toggleDarkMode() {
+    window.toggleDarkMode = function() {
         document.body.classList.toggle('dark-mode');
         document.getElementById('themeBtn').innerText = 
             document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    }
+    };
 
     // Admin functions
-    function openAdminPanel() {
+    window.openAdminPanel = function() {
         document.getElementById('adminPanelModal').classList.add('show');
-    }
+    };
 
-    function openAddProduct() {
+    window.openAddProduct = function() {
         editingProductIndex = null;
         document.getElementById('productModalTitle').textContent = '➕ Agregar Producto';
         document.getElementById('productName').value = '';
@@ -583,7 +684,7 @@
         actualizarListaCategorias();
         closeModal('adminPanelModal');
         document.getElementById('productModal').classList.add('show');
-    }
+    };
 
     function actualizarListaCategorias() {
         const datalist = document.getElementById('categoriasList');
@@ -591,7 +692,7 @@
         datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
     }
 
-    async function guardarProducto() {
+    window.guardarProducto = async function() {
         const nombre = document.getElementById('productName').value.trim();
         const categoria = document.getElementById('productCategory').value.trim();
         
@@ -606,18 +707,16 @@
             productos.push({ n: nombre, c: categoria });
         }
         
-        await guardarProductosStorage();
+        await guardarProductosFirebase();
         closeModal('productModal');
-        crearCategorias();
-        renderizar();
         alert('✅ Producto guardado correctamente');
-    }
+    };
 
-    function openManageProducts() {
+    window.openManageProducts = function() {
         closeModal('adminPanelModal');
         document.getElementById('manageModal').classList.add('show');
         renderManageList();
-    }
+    };
 
     function renderManageList(filtro = "") {
         const manageList = document.getElementById('manageList');
@@ -626,7 +725,7 @@
             p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
         );
         
-        manageList.innerHTML = filtrados.map((p, idx) => {
+        manageList.innerHTML = filtrados.map((p) => {
             const globalIdx = productos.indexOf(p);
             return `
                 <div class="card mb-2 p-2">
@@ -636,8 +735,8 @@
                             <div><strong>${p.n}</strong></div>
                         </div>
                         <div>
-                            <button class="btn btn-sm btn-warning" onclick="editarProducto(${globalIdx})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${globalIdx})">🗑️</button>
+                            <button class="btn btn-sm btn-warning" onclick="window.editarProducto(${globalIdx})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarProducto(${globalIdx})">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -645,7 +744,7 @@
         }).join('');
     }
 
-    function editarProducto(index) {
+    window.editarProducto = function(index) {
         editingProductIndex = index;
         const p = productos[index];
         document.getElementById('productModalTitle').textContent = '✏️ Editar Producto';
@@ -654,55 +753,24 @@
         actualizarListaCategorias();
         closeModal('manageModal');
         document.getElementById('productModal').classList.add('show');
-    }
+    };
 
-    async function eliminarProducto(index) {
+    window.eliminarProducto = async function(index) {
         if (confirm('¿Seguro que deseas eliminar este producto?')) {
             productos.splice(index, 1);
-            await guardarProductosStorage();
+            await guardarProductosFirebase();
             renderManageList();
-            crearCategorias();
-            renderizar();
         }
-    }
+    };
 
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
     }
+    window.closeModal = closeModal;
 
     // Event listeners
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
     document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
-    
-    // Función de emergencia para forzar carga desde JSON
-    async function forzarCargaJSON() {
-        try {
-            console.log('Intentando cargar productos.json...');
-            const response = await fetch('productos.json');
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const text = await response.text();
-            console.log('JSON raw:', text.substring(0, 100));
-            
-            productos = JSON.parse(text);
-            await guardarProductosStorage();
-            
-            alert(`✅ ${productos.length} productos cargados correctamente`);
-            document.getElementById('errorHelper').style.display = 'none';
-            
-            if (currentUser) {
-                crearCategorias();
-                renderizar();
-            }
-        } catch (error) {
-            console.error('Error detallado:', error);
-            alert(`❌ Error: ${error.message}\n\nVerifica que productos.json esté en la misma carpeta que el HTML.`);
-        }
-    }
     
     // Cerrar modales con click fuera
     document.querySelectorAll('.modal').forEach(modal => {
@@ -711,7 +779,7 @@
         });
     });
 
-    // Iniciar
+    // Iniciar aplicación
     init();
 </script>
 </body>
