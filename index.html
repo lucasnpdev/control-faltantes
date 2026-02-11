@@ -11,6 +11,7 @@
 
         body { background-color: var(--bg); color: var(--text); transition: 0.3s; padding-bottom: 30px; margin: 0; }
         
+        /* Pantalla de selección de usuarios */
         #userSelection {
             min-height: 100vh;
             display: flex;
@@ -48,9 +49,17 @@
             color: white;
         }
         
-        .user-icon { font-size: 3rem; margin-bottom: 10px; }
-        .user-name { font-size: 1.2rem; font-weight: bold; }
+        .user-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
         
+        .user-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* Loading spinner */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -81,7 +90,10 @@
             100% { transform: rotate(360deg); }
         }
         
-        #mainApp { display: none; }
+        /* App principal */
+        #mainApp {
+            display: none;
+        }
         
         .header-app {
             display: flex;
@@ -109,30 +121,18 @@
             background: var(--card); border: none; 
             border-left: 6px solid #28a745; margin-bottom: 10px; 
             transition: all 0.2s; color: var(--text);
-            cursor: move;
         }
         
         .product-card.category-zero {
             border-left-color: #ff4d4d !important;
             background-color: rgba(255, 77, 77, 0.05);
         }
-        
-        .product-card.category-faltantes-ayer {
-            border-left-color: #ff6b00 !important;
-            background-color: rgba(255, 107, 0, 0.08);
-        }
-        
-        .product-card.category-zero .category-label,
-        .product-card.category-faltantes-ayer .category-label {
+        .product-card.category-zero .category-label {
+            color: #ff4d4d !important;
             font-weight: 900;
         }
-        
         body.dark-mode .product-card.category-zero {
             background-color: rgba(255, 77, 77, 0.12);
-        }
-        
-        body.dark-mode .product-card.category-faltantes-ayer {
-            background-color: rgba(255, 107, 0, 0.15);
         }
 
         .product-card.disabled { 
@@ -141,19 +141,12 @@
             text-decoration: line-through; 
             border-left-color: #6c757d !important;
         }
-        
-        .product-card.dragging {
-            opacity: 0.5;
-        }
 
         .category-label { font-size: 0.7rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
-        .product-note { font-size: 0.85rem; color: #666; font-style: italic; margin-top: 5px; }
-        body.dark-mode .product-note { color: #aaa; }
         
         #categoryBar::-webkit-scrollbar { display: none; }
         .badge-cat { 
-            cursor: move;
-            font-size: 0.85rem; padding: 8px 16px; 
+            cursor: pointer; font-size: 0.85rem; padding: 8px 16px; 
             border-radius: 20px; border: 1px solid #28a745; 
             color: #28a745; background: var(--card); display: inline-block;
         }
@@ -169,15 +162,6 @@
             background: #ff4d4d;
             color: white;
         }
-        .badge-cat.category-faltantes-badge {
-            border-color: #ff6b00;
-            color: #ff6b00;
-            font-weight: bold;
-        }
-        .badge-cat.category-faltantes-badge.active {
-            background: #ff6b00;
-            color: white;
-        }
 
         .theme-toggle-header {
             background: none; border: 1px solid var(--border);
@@ -185,6 +169,7 @@
             font-size: 1.2rem;
         }
         
+        /* Admin Panel */
         .admin-btn {
             position: fixed;
             bottom: 20px;
@@ -211,10 +196,11 @@
             z-index: 2000;
             align-items: center;
             justify-content: center;
-            overflow-y: auto;
         }
         
-        .modal.show { display: flex; }
+        .modal.show {
+            display: flex;
+        }
         
         .modal-content {
             background: var(--card);
@@ -222,12 +208,13 @@
             border-radius: 15px;
             max-width: 500px;
             width: 90%;
-            max-height: 85vh;
+            max-height: 80vh;
             overflow-y: auto;
-            margin: 20px;
         }
         
-        .form-group { margin-bottom: 15px; }
+        .form-group {
+            margin-bottom: 15px;
+        }
         
         .btn-group-custom {
             display: flex;
@@ -235,988 +222,721 @@
             margin-top: 20px;
         }
         
-        .stock-switch {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 12px;
-            background: var(--card);
+        .sync-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
             border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 0.85rem;
-            cursor: pointer;
+            font-size: 0.8rem;
+            z-index: 1002;
+            display: none;
         }
         
-        .switch-toggle {
-            width: 40px;
-            height: 20px;
-            background: #ccc;
-            border-radius: 10px;
-            position: relative;
-            transition: 0.3s;
-        }
-        
-        .switch-toggle.active {
-            background: #28a745;
-        }
-        
-        .switch-toggle::after {
-            content: '';
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: 0.3s;
-        }
-        
-        .switch-toggle.active::after {
-            left: 22px;
-        }
-        
-        .stats-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .stats-table th, .stats-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .stats-table th {
-            background: var(--card);
-            font-weight: bold;
-        }
-        
-        .quick-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-quick {
-            flex: 1;
-            min-width: 120px;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .btn-zero {
-            background: #ff4d4d;
-            color: white;
-        }
-        
-        .btn-unzero {
-            background: #28a745;
-            color: white;
-        }
-        
-        .error-message {
-            background: #ff4d4d;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px;
-            text-align: center;
-        }
-        
-        .error-message h3 {
-            margin-top: 0;
-        }
-        
-        .error-message pre {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            text-align: left;
-            overflow-x: auto;
-            font-size: 0.85rem;
+        .sync-indicator.syncing {
+            display: block;
+            background: #ffc107;
         }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <div id="loadingText">Inicializando Firebase...</div>
-    </div>
 
-    <div id="userSelection">
-        <div class="user-grid">
-            <div class="user-card" onclick="selectUser('Franco')">
-                <div class="user-icon">👨</div>
-                <div class="user-name">Franco</div>
-            </div>
-            <div class="user-card" onclick="selectUser('Jazmin')">
-                <div class="user-icon">👩</div>
-                <div class="user-name">Jazmin</div>
-            </div>
-            <div class="user-card admin" onclick="selectUser('admin')">
-                <div class="user-icon">⚙️</div>
-                <div class="user-name">Administrador</div>
-            </div>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div>Cargando productos...</div>
+</div>
+
+<!-- Indicador de sincronización -->
+<div id="syncIndicator" class="sync-indicator">🔄 Sincronizando...</div>
+
+<!-- Selección de Usuario -->
+<div id="userSelection" style="display: none;">
+    <div class="user-grid">
+        <div class="user-card" onclick="selectUser('Valen')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Valen</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Abi')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Abi</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Gabriel')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Gabriel</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Fabri')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Fabri</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Eros')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Eros</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Lucas')">
+            <div class="user-icon">👤</div>
+            <div class="user-name">Lucas</div>
+        </div>
+        <div class="user-card admin" onclick="loginAdmin()">
+            <div class="user-icon">🔐</div>
+            <div class="user-name">Admin</div>
         </div>
     </div>
+</div>
 
-    <div id="mainApp">
-        <div class="search-container">
-            <div class="header-app">
-                <span class="user-badge" id="userBadge" onclick="changeUser()">👤</span>
-                <button class="theme-toggle-header" onclick="toggleDark()">🌙</button>
+<!-- App Principal -->
+<div id="mainApp">
+    <div class="search-container">
+        <div class="header-app">
+            <h4 class="m-0">🛒 Control Faltantes</h4>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span class="user-badge" onclick="cambiarUsuario()" id="currentUser"></span>
+                <button class="theme-toggle-header" onclick="toggleDarkMode()" id="themeBtn">🌙</button>
             </div>
+        </div>
+        
+        <input type="text" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" placeholder="Buscar producto o sector...">
+        
+        <div class="d-flex overflow-auto pb-2 gap-2" id="categoryBar" style="white-space: nowrap;"></div>
+    </div>
+
+    <div class="container mt-3">
+        <div id="listaProductos"></div>
+    </div>
+    
+    <!-- Botón Admin -->
+    <button class="admin-btn" id="adminBtn" style="display: none;" onclick="openAdminPanel()">⚙️</button>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal" id="adminModal">
+    <div class="modal-content">
+        <h3>🔐 Acceso Admin</h3>
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" id="adminPassword" class="form-control" placeholder="Ingresa la contraseña">
+        </div>
+        <div class="btn-group-custom">
+            <button class="btn btn-primary flex-grow-1" onclick="verificarAdmin()">Ingresar</button>
+            <button class="btn btn-secondary" onclick="closeModal('adminModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Admin Panel -->
+<div class="modal" id="adminPanelModal">
+    <div class="modal-content">
+        <h3>⚙️ Panel de Administración</h3>
+        
+        <div class="btn-group-custom">
+            <button class="btn btn-success flex-grow-1" onclick="openAddProduct()">➕ Agregar Producto</button>
+            <button class="btn btn-warning flex-grow-1" onclick="openManageProducts()">✏️ Gestionar</button>
+        </div>
+        
+        <button class="btn btn-secondary w-100 mt-3" onclick="closeModal('adminPanelModal')">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal Agregar/Editar Producto -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <h3 id="productModalTitle">➕ Agregar Producto</h3>
+        <div class="form-group">
+            <label>Nombre del producto:</label>
+            <input type="text" id="productName" class="form-control" placeholder="Ej: Leche La Serenísima">
+        </div>
+        <div class="form-group">
+            <label>Categoría:</label>
+            <input type="text" id="productCategory" class="form-control" placeholder="Ej: 15. Lácteos" list="categoriasList">
+            <datalist id="categoriasList"></datalist>
+        </div>
+        <div class="btn-group-custom">
+            <button class="btn btn-primary flex-grow-1" onclick="guardarProducto()">Guardar</button>
+            <button class="btn btn-secondary" onclick="closeModal('productModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gestionar Productos -->
+<div class="modal" id="manageModal">
+    <div class="modal-content">
+        <h3>✏️ Gestionar Productos</h3>
+        <input type="text" id="manageSearch" class="form-control mb-3" placeholder="Buscar producto...">
+        <div id="manageList" style="max-height: 400px; overflow-y: auto;"></div>
+        <button class="btn btn-secondary w-100 mt-3" onclick="closeModal('manageModal')">Cerrar</button>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, set, get, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCfj4L-O-80sVzA7pzqGpZ4bl0iaVEeeeU",
+        authDomain: "control-faltantes.firebaseapp.com",
+        databaseURL: "https://control-faltantes-default-rtdb.firebaseio.com",
+        projectId: "control-faltantes",
+        storageBucket: "control-faltantes.firebasestorage.app",
+        messagingSenderId: "599058830915",
+        appId: "1:599058830915:web:4d48395640d7981c1626f6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Variables globales
+    let productos = [];
+    let currentUser = null;
+    let isAdmin = false;
+    let categoriaSeleccionada = null;
+    let productosDesactivados = [];
+    let editingProductIndex = null;
+    
+    const listaDiv = document.getElementById('listaProductos');
+    const searchInput = document.getElementById('searchInput');
+    const categoryBar = document.getElementById('categoryBar');
+    const ADMIN_PASSWORD = 'Lakis154629617';
+    
+    // Referencias Firebase
+    const productosRef = ref(database, 'productos');
+    const desactivadosRef = ref(database, 'productos-desactivados');
+    const ultimoResetRef = ref(database, 'ultimo-reset');
+
+    // Verificar y ejecutar reset diario
+    async function verificarResetDiario() {
+        try {
+            const snapshot = await get(ultimoResetRef);
+            const ahora = new Date();
             
-            <div class="quick-controls" id="quickControls"></div>
+            // Convertir a hora Argentina (UTC-3)
+            const horaArgentina = new Date(ahora.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+            const fechaHoy = horaArgentina.toISOString().split('T')[0]; // YYYY-MM-DD
             
-            <input type="text" id="search" class="form-control mb-3" placeholder="🔍 Buscar producto...">
-            <div id="categoryBar" style="display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; padding-bottom: 10px;"></div>
-        </div>
-        <div id="productos" class="container mt-3"></div>
-    </div>
+            let ultimoReset = null;
+            if (snapshot.exists()) {
+                ultimoReset = snapshot.val();
+            }
+            
+            console.log('📅 Fecha hoy (ARG):', fechaHoy);
+            console.log('📅 Último reset:', ultimoReset);
+            
+            // Si no hay reset hoy y ya pasaron las 8 AM
+            const hora = horaArgentina.getHours();
+            const debeResetear = (!ultimoReset || ultimoReset !== fechaHoy) && hora >= 8;
+            
+            if (debeResetear) {
+                console.log('🔄 Ejecutando reset diario...');
+                await ejecutarResetDiario(fechaHoy);
+            } else {
+                console.log('✅ No se necesita reset todavía');
+            }
+        } catch (error) {
+            console.error('❌ Error verificando reset diario:', error);
+        }
+    }
 
-    <button class="admin-btn" id="adminBtn" onclick="openAdminPanel()" style="display: none;">⚙️</button>
+    // Ejecutar reset diario
+    async function ejecutarResetDiario(fechaHoy) {
+        try {
+            // 1. Limpiar todos los productos desactivados
+            productosDesactivados = [];
+            await set(desactivadosRef, []);
+            
+            // 2. Limpiar todas las categorías guardadas de usuarios
+            const usuarios = ['Valen', 'Abi', 'Gabriel', 'Fabri', 'Eros', 'Lucas', 'Admin'];
+            usuarios.forEach(user => {
+                localStorage.removeItem(`user-${user}-categoria`);
+            });
+            
+            // 3. Marcar que ya se hizo el reset hoy
+            await set(ultimoResetRef, fechaHoy);
+            
+            console.log('✅ Reset diario completado');
+            
+            // Si hay un usuario activo, recargar la vista
+            if (currentUser) {
+                categoriaSeleccionada = null;
+                crearCategorias();
+                renderizar();
+            }
+        } catch (error) {
+            console.error('❌ Error ejecutando reset diario:', error);
+        }
+    }
 
-    <!-- Modal Panel Admin -->
-    <div id="adminPanelModal" class="modal">
-        <div class="modal-content">
-            <h3>⚙️ Panel de Administración</h3>
-            <div class="btn-group-custom">
-                <button class="btn btn-primary" onclick="openAddProduct()">➕ Agregar Producto</button>
-                <button class="btn btn-warning" onclick="openManageProducts()">📋 Gestionar Productos</button>
-                <button class="btn btn-info" onclick="openStats()">📊 Estadísticas</button>
-            </div>
-            <button class="btn btn-secondary mt-3" onclick="closeModal('adminPanelModal')">❌ Cerrar</button>
-        </div>
-    </div>
+    // Inicialización
+    async function init() {
+        try {
+            await cargarDatosFirebase();
+            await verificarResetDiario();
+            ocultarLoading();
+            
+            // Verificar si hay un usuario guardado
+            const savedUser = localStorage.getItem('ultimo-usuario');
+            const savedIsAdmin = localStorage.getItem('ultimo-es-admin') === 'true';
+            
+            if (savedUser) {
+                // Auto-login con el último usuario
+                if (savedIsAdmin) {
+                    // Si era admin, pedir contraseña de nuevo
+                    mostrarSeleccionUsuario();
+                } else {
+                    // Login automático para usuarios normales
+                    await selectUser(savedUser);
+                }
+            } else {
+                mostrarSeleccionUsuario();
+            }
+        } catch (error) {
+            console.error('Error en inicialización:', error);
+            alert('Error al cargar la aplicación. Verifica tu conexión a internet.');
+        }
+    }
 
-    <!-- Modal Agregar/Editar Producto -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <h3 id="productModalTitle">➕ Agregar Producto</h3>
-            <div class="form-group">
-                <label>Nombre del Producto</label>
-                <input type="text" id="productName" class="form-control" placeholder="Ej: Leche Larga Vida">
-            </div>
-            <div class="form-group">
-                <label>Categoría</label>
-                <input type="text" id="productCategory" class="form-control" list="categoriasList" placeholder="Ej: Lacteos">
-                <datalist id="categoriasList"></datalist>
-            </div>
-            <div class="form-group">
-                <label>Nota (opcional)</label>
-                <input type="text" id="productNote" class="form-control" placeholder="Ej: Revisar en góndola 5">
-            </div>
-            <div class="btn-group-custom">
-                <button class="btn btn-success" onclick="guardarProducto()">💾 Guardar</button>
-                <button class="btn btn-secondary" onclick="closeModal('productModal')">❌ Cancelar</button>
-            </div>
-        </div>
-    </div>
+    function mostrarLoading(mensaje = 'Cargando productos...') {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingOverlay').querySelector('div:last-child').textContent = mensaje;
+    }
 
-    <!-- Modal Gestionar Productos -->
-    <div id="manageModal" class="modal">
-        <div class="modal-content">
-            <h3>📋 Gestionar Productos</h3>
-            <input type="text" id="manageSearch" class="form-control mb-3" placeholder="🔍 Buscar...">
-            <div id="manageList" style="max-height: 400px; overflow-y: auto;"></div>
-            <button class="btn btn-secondary mt-3" onclick="closeModal('manageModal')">❌ Cerrar</button>
-        </div>
-    </div>
+    function ocultarLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
 
-    <!-- Modal Estadísticas -->
-    <div id="statsModal" class="modal">
-        <div class="modal-content">
-            <h3>📊 Estadísticas de Stock</h3>
-            <div class="form-group">
-                <label>Mostrar productos con % de faltante ≥</label>
-                <select id="statsFilter" class="form-control" onchange="renderStats()">
-                    <option value="0">0% (Todos)</option>
-                    <option value="10">10%</option>
-                    <option value="25" selected>25%</option>
-                    <option value="50">50%</option>
-                    <option value="75">75%</option>
-                </select>
-            </div>
-            <div id="statsContent" style="max-height: 400px; overflow-y: auto; margin: 20px 0;"></div>
-            <div class="btn-group-custom">
-                <button class="btn btn-success" onclick="descargarEstadisticas()">📥 Descargar CSV</button>
-                <button class="btn btn-secondary" onclick="closeModal('statsModal')">❌ Cerrar</button>
-            </div>
-        </div>
-    </div>
+    function mostrarSeleccionUsuario() {
+        document.getElementById('userSelection').style.display = 'flex';
+    }
 
-    <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    function mostrarSyncIndicator() {
+        const indicator = document.getElementById('syncIndicator');
+        indicator.classList.add('syncing');
+        setTimeout(() => indicator.classList.remove('syncing'), 1000);
+    }
 
-// Configuración de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyDvKz_U0-mQ7F0bDcg0Sc2Xpe3gQQqfprs",
-    authDomain: "fajas-jumbo.firebaseapp.com",
-    databaseURL: "https://fajas-jumbo-default-rtdb.firebaseio.com",
-    projectId: "fajas-jumbo",
-    storageBucket: "fajas-jumbo.firebasestorage.app",
-    messagingSenderId: "1045084929799",
-    appId: "1:1045084929799:web:e0da74fc4cd5cab4e3e51d"
-};
-
-let productos = [];
-let estadoStock = {};
-let historialStock = {};
-let currentUser = null;
-let categoriaActual = 'todos';
-let editingProductIndex = null;
-let lastManageSearch = '';
-let categoriasOrdenPersonalizado = [];
-let isDraggingCategory = false;
-
-const searchInput = document.getElementById('search');
-const productosDiv = document.getElementById('productos');
-const categoryBar = document.getElementById('categoryBar');
-
-let app, db, productosRef, stockRef, historialRef;
-
-function showLoading(text = 'Cargando...') {
-    document.getElementById('loadingText').textContent = text;
-    document.getElementById('loadingOverlay').style.display = 'flex';
-}
-
-function hideLoading() {
-    document.getElementById('loadingOverlay').style.display = 'none';
-}
-
-function showError(title, message, details = '') {
-    hideLoading();
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `
-        <h3>${title}</h3>
-        <p>${message}</p>
-        ${details ? `<pre>${details}</pre>` : ''}
-        <button class="btn btn-light mt-3" onclick="location.reload()">🔄 Reintentar</button>
-    `;
-    document.body.appendChild(errorDiv);
-}
-
-async function init() {
-    try {
-        showLoading('Inicializando Firebase...');
-        console.log('🔧 Inicializando Firebase...');
-        
-        // Inicializar Firebase
-        app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        
-        console.log('✅ Firebase inicializado');
-        showLoading('Conectando a base de datos...');
-        
-        // Crear referencias
-        productosRef = ref(db, 'productos');
-        stockRef = ref(db, 'stock');
-        historialRef = ref(db, 'historial');
-        
-        console.log('✅ Referencias creadas');
-        showLoading('Cargando productos...');
-        
-        // Intentar cargar productos con timeout
-        const timeout = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout: La conexión tardó demasiado')), 10000)
-        );
-        
-        const loadData = get(productosRef).then(snapshot => {
-            console.log('📦 Respuesta recibida de Firebase');
+    // Cargar datos desde Firebase
+    async function cargarDatosFirebase() {
+        try {
+            console.log('🔄 Iniciando conexión con Firebase...');
+            
+            // Verificar si hay productos en Firebase
+            const snapshot = await get(productosRef);
+            
             if (snapshot.exists()) {
                 productos = snapshot.val();
-                console.log('✅ Productos cargados:', productos.length);
+                console.log('✅ Productos cargados desde Firebase:', productos.length);
             } else {
-                console.warn('⚠️ No hay productos en Firebase');
-                productos = [];
+                // Primera vez: cargar desde JSON y subir a Firebase
+                console.log('🔄 Primera carga: importando desde productos.json...');
+                mostrarLoading('Importando productos por primera vez...');
+                
+                const response = await fetch('productos.json');
+                if (!response.ok) throw new Error('No se pudo cargar productos.json');
+                
+                productos = await response.json();
+                await set(productosRef, productos);
+                console.log('✅ Productos importados a Firebase:', productos.length);
             }
-        });
-        
-        await Promise.race([loadData, timeout]);
-        
-        showLoading('Cargando historial...');
-        
-        // Cargar historial
+            
+            // Escuchar cambios en productos en tiempo real
+            onValue(productosRef, (snapshot) => {
+                console.log('🔄 Cambio detectado en productos Firebase');
+                if (snapshot.exists()) {
+                    productos = snapshot.val();
+                    if (currentUser) {
+                        crearCategorias();
+                        renderizar();
+                        mostrarSyncIndicator();
+                        console.log('✅ UI actualizada con nuevos productos');
+                    }
+                }
+            }, (error) => {
+                console.error('❌ Error en listener de productos:', error);
+            });
+            
+            // Cargar y escuchar productos desactivados
+            const desactivadosSnapshot = await get(desactivadosRef);
+            if (desactivadosSnapshot.exists()) {
+                productosDesactivados = desactivadosSnapshot.val();
+                console.log('✅ Productos desactivados cargados:', productosDesactivados.length);
+            } else {
+                productosDesactivados = [];
+                await set(desactivadosRef, []);
+                console.log('✅ Inicializado array de desactivados en Firebase');
+            }
+            
+            onValue(desactivadosRef, (snapshot) => {
+                console.log('🔄 Cambio detectado en desactivados Firebase');
+                if (snapshot.exists()) {
+                    productosDesactivados = snapshot.val();
+                    if (currentUser) {
+                        renderizar();
+                        mostrarSyncIndicator();
+                        console.log('✅ UI actualizada con desactivados');
+                    }
+                }
+            }, (error) => {
+                console.error('❌ Error en listener de desactivados:', error);
+            });
+            
+        } catch (error) {
+            console.error('❌ Error cargando datos de Firebase:', error);
+            alert('❌ Error crítico de Firebase. Verifica tu conexión a internet.');
+            throw error;
+        }
+    }
+
+    // Guardar productos en Firebase
+    async function guardarProductosFirebase() {
         try {
-            const historialSnapshot = await get(historialRef);
-            if (historialSnapshot.exists()) {
-                historialStock = historialSnapshot.val();
-                console.log('✅ Historial cargado');
-            } else {
-                historialStock = {};
-                console.log('ℹ️ No hay historial previo');
-            }
-        } catch (histErr) {
-            console.error('⚠️ Error cargando historial:', histErr);
-            historialStock = {};
+            console.log('💾 Guardando productos en Firebase...');
+            await set(productosRef, productos);
+            console.log('✅ Productos guardados en Firebase exitosamente');
+        } catch (error) {
+            console.error('❌ Error guardando productos:', error);
+            alert('❌ Error al guardar productos: ' + error.message);
         }
+    }
+
+    // Guardar desactivados en Firebase
+    async function guardarDesactivadosFirebase() {
+        try {
+            console.log('💾 Guardando desactivados en Firebase...', productosDesactivados.length);
+            await set(desactivadosRef, productosDesactivados);
+            console.log('✅ Desactivados guardados en Firebase');
+        } catch (error) {
+            console.error('❌ Error guardando desactivados:', error);
+        }
+    }
+
+    // Selección de usuario
+    window.selectUser = async function(nombre) {
+        currentUser = nombre;
+        isAdmin = false;
         
-        // Escuchar cambios en stock en tiempo real
-        onValue(stockRef, (snapshot) => {
-            if (snapshot.exists()) {
-                estadoStock = snapshot.val();
-                console.log('🔄 Stock actualizado');
-                if (currentUser) renderizar();
-            }
-        }, (error) => {
-            console.error('⚠️ Error en listener de stock:', error);
-        });
+        // Guardar usuario para la próxima vez
+        localStorage.setItem('ultimo-usuario', nombre);
+        localStorage.setItem('ultimo-es-admin', 'false');
         
-        console.log('✅ Inicialización completa');
-        hideLoading();
+        document.getElementById('userSelection').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('currentUser').textContent = nombre;
+        document.getElementById('adminBtn').style.display = 'none';
         
-    } catch (error) {
-        console.error('❌ Error en init:', error);
+        // Cargar categoría guardada del usuario
+        const savedCat = localStorage.getItem(`user-${nombre}-categoria`);
+        categoriaSeleccionada = savedCat || null;
         
-        let errorMsg = 'No se pudo conectar con Firebase.';
-        let details = `Error: ${error.message}\n\n`;
-        
-        if (error.message.includes('Timeout')) {
-            errorMsg = 'La conexión con Firebase tardó demasiado.';
-            details += 'Posibles causas:\n';
-            details += '• Conexión a internet lenta o inestable\n';
-            details += '• Servidor de Firebase no responde\n';
-            details += '• Firewall o proxy bloqueando la conexión';
-        } else if (error.code === 'PERMISSION_DENIED') {
-            errorMsg = 'Acceso denegado a Firebase.';
-            details += 'Las reglas de seguridad de Firebase están bloqueando el acceso.\n\n';
-            details += 'Ve a Firebase Console → Realtime Database → Rules\n';
-            details += 'Y configura las reglas temporalmente como:\n\n';
-            details += '{\n';
-            details += '  "rules": {\n';
-            details += '    ".read": true,\n';
-            details += '    ".write": true\n';
-            details += '  }\n';
-            details += '}';
+        // Cargar modo oscuro del usuario
+        const darkMode = localStorage.getItem(`user-${nombre}-darkmode`) === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeBtn').innerText = '☀️';
         } else {
-            details += 'Verifica:\n';
-            details += '1. La URL de databaseURL en firebaseConfig\n';
-            details += '2. Las reglas de seguridad en Firebase Console\n';
-            details += '3. Que el proyecto de Firebase esté activo\n';
-            details += '4. Tu conexión a internet';
+            document.body.classList.remove('dark-mode');
+            document.getElementById('themeBtn').innerText = '🌙';
         }
         
-        showError('❌ Error de Conexión', errorMsg, details);
+        crearCategorias();
+        renderizar();
+        
+        // Scroll a la categoría guardada después de que se creen
+        setTimeout(() => {
+            scrollToActiveCategory();
+        }, 100);
+    };
+
+    // Login Admin
+    window.loginAdmin = function() {
+        document.getElementById('adminModal').classList.add('show');
+        document.getElementById('adminPassword').value = '';
+    };
+
+    window.verificarAdmin = function() {
+        const pass = document.getElementById('adminPassword').value;
+        if (pass === ADMIN_PASSWORD) {
+            currentUser = 'Admin';
+            isAdmin = true;
+            
+            // Guardar admin para la próxima vez (pero seguirá pidiendo contraseña)
+            localStorage.setItem('ultimo-usuario', 'Admin');
+            localStorage.setItem('ultimo-es-admin', 'true');
+            
+            closeModal('adminModal');
+            document.getElementById('userSelection').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUser').textContent = '👑 Admin';
+            document.getElementById('adminBtn').style.display = 'block';
+            
+            // Cargar modo oscuro del admin
+            const darkMode = localStorage.getItem('user-Admin-darkmode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeBtn').innerText = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeBtn').innerText = '🌙';
+            }
+            
+            crearCategorias();
+            renderizar();
+        } else {
+            alert('❌ Contraseña incorrecta');
+        }
+    };
+
+    // Cambiar usuario
+    window.cambiarUsuario = function() {
+        // Limpiar usuario guardado
+        localStorage.removeItem('ultimo-usuario');
+        localStorage.removeItem('ultimo-es-admin');
+        
+        currentUser = null;
+        isAdmin = false;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('userSelection').style.display = 'flex';
+    };
+
+    // Crear categorías
+    function crearCategorias() {
+        categoryBar.innerHTML = '';
+        const categorias = [...new Set(productos.map(p => p.c))].sort();
+        
+        // Botón "Todas"
+        const btnTodas = document.createElement('span');
+        btnTodas.className = 'badge-cat';
+        if (!categoriaSeleccionada) btnTodas.classList.add('active');
+        btnTodas.textContent = 'Todas';
+        btnTodas.onclick = () => filtrarPorCategoria(null, btnTodas);
+        categoryBar.appendChild(btnTodas);
+        
+        // Categorías
+        categorias.forEach(cat => {
+            const badge = document.createElement('span');
+            badge.className = 'badge-cat';
+            if (cat.startsWith('00')) badge.classList.add('category-zero-badge');
+            if (categoriaSeleccionada === cat) badge.classList.add('active');
+            badge.textContent = cat;
+            badge.onclick = () => filtrarPorCategoria(cat, badge);
+            categoryBar.appendChild(badge);
+        });
     }
-}
 
-window.selectUser = function(user) {
-    currentUser = user;
-    document.getElementById('userSelection').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('userBadge').textContent = user === 'admin' ? '⚙️ Admin' : `👤 ${user}`;
-    
-    if (user === 'admin') {
-        document.getElementById('adminBtn').style.display = 'block';
-    }
-    
-    const savedDark = localStorage.getItem(`user-${user}-darkmode`);
-    if (savedDark === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-    
-    cargarOrdenCategorias();
-    renderizar();
-};
-
-function cargarOrdenCategorias() {
-    const saved = localStorage.getItem(`user-${currentUser}-category-order`);
-    if (saved) {
-        categoriasOrdenPersonalizado = JSON.parse(saved);
-    } else {
-        categoriasOrdenPersonalizado = [];
-    }
-}
-
-function guardarOrdenCategorias() {
-    localStorage.setItem(`user-${currentUser}-category-order`, JSON.stringify(categoriasOrdenPersonalizado));
-}
-
-window.changeUser = function() {
-    currentUser = null;
-    document.getElementById('userSelection').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('adminBtn').style.display = 'none';
-    categoriaActual = 'todos';
-};
-
-function normalizarTexto(texto) {
-    return texto
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9\s]/g, " ")
-        .trim()
-        .split(/\s+/)
-        .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-        .join(" ");
-}
-
-function contarProductosSinStock(categoria) {
-    const hoy = new Date().toISOString().split('T')[0];
-    const sinStockHoy = historialStock[hoy] || [];
-    
-    if (categoria === 'todos') {
-        return sinStockHoy.length;
-    }
-    
-    return sinStockHoy.filter(idx => {
-        const producto = productos[idx];
-        return producto && producto.c === categoria;
-    }).length;
-}
-
-function renderizar(filtro = "") {
-    if (!currentUser) return;
-    
-    const hoy = new Date().toISOString().split('T')[0];
-    const ayer = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    const sinStockHoy = historialStock[hoy] || [];
-    const sinStockAyer = historialStock[ayer] || [];
-    
-    const categoriasUnicas = [...new Set(productos.map(p => p.c))].sort();
-    
-    const categoriasOrdenadas = categoriasOrdenPersonalizado.length > 0 
-        ? categoriasOrdenPersonalizado.filter(c => categoriasUnicas.includes(c))
-            .concat(categoriasUnicas.filter(c => !categoriasOrdenPersonalizado.includes(c)))
-        : categoriasUnicas;
-    
-    const todosSinStock = contarProductosSinStock('todos');
-    
-    categoryBar.innerHTML = `
-        <span class="badge-cat ${categoriaActual === 'todos' ? 'active' : ''}" 
-              draggable="false"
-              onclick="window.cambiarCategoria('todos')">
-            📦 Todos ${todosSinStock > 0 ? `(${todosSinStock})` : ''}
-        </span>
-    ` + categoriasOrdenadas.map(cat => {
-        const count = contarProductosSinStock(cat);
-        const badgeClass = cat === '⚠️ Sin Stock Ayer' ? 'category-faltantes-badge' 
-                         : cat === '🚫 Cero Stock' ? 'category-zero-badge' 
-                         : '';
-        return `
-            <span class="badge-cat ${categoriaActual === cat ? 'active' : ''} ${badgeClass}" 
-                  draggable="true"
-                  ondragstart="window.dragStartCategory(event, '${cat}')"
-                  ondragover="window.dragOverCategory(event)"
-                  ondrop="window.dropCategory(event, '${cat}')"
-                  ondragend="window.dragEndCategory()"
-                  onclick="window.cambiarCategoria('${cat}')">
-                ${cat} ${count > 0 ? `(${count})` : ''}
-            </span>
-        `;
-    }).join('');
-    
-    const quickControls = document.getElementById('quickControls');
-    if (categoriaActual !== 'todos' && categoriaActual !== '⚠️ Sin Stock Ayer' && categoriaActual !== '🚫 Cero Stock') {
-        quickControls.innerHTML = `
-            <button class="btn-quick btn-zero" onclick="window.marcarTodosZeroCategoria()">
-                🚫 Marcar todos como Cero Stock
-            </button>
-            <button class="btn-quick btn-unzero" onclick="window.desmarcarTodosZeroCategoria()">
-                ✅ Desmarcar todos de Cero Stock
-            </button>
-        `;
-        quickControls.style.display = 'flex';
-    } else {
-        quickControls.style.display = 'none';
+    function filtrarPorCategoria(categoria, element) {
+        categoriaSeleccionada = categoria;
+        
+        // Guardar categoría del usuario
+        if (currentUser) {
+            localStorage.setItem(`user-${currentUser}-categoria`, categoria || '');
+        }
+        
+        document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
+        renderizar();
+        
+        // Scroll para mantener visible la categoría activa
+        scrollToActiveCategory();
     }
     
-    const f = filtro.toLowerCase();
-    let productosFiltrados = productos.map((p, idx) => ({ ...p, idx }));
-    
-    if (categoriaActual === '🚫 Cero Stock') {
-        productosFiltrados = productosFiltrados.filter(p => sinStockHoy.includes(p.idx));
-    } else if (categoriaActual === '⚠️ Sin Stock Ayer') {
-        productosFiltrados = productosFiltrados.filter(p => sinStockAyer.includes(p.idx));
-    } else if (categoriaActual !== 'todos') {
-        productosFiltrados = productosFiltrados.filter(p => p.c === categoriaActual);
+    // Función para hacer scroll a la categoría activa
+    function scrollToActiveCategory() {
+        const activeButton = document.querySelector('.badge-cat.active');
+        if (activeButton) {
+            activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     }
-    
-    if (filtro) {
-        productosFiltrados = productosFiltrados.filter(p => 
+
+    // Renderizar productos
+    function renderizar(filtro = "") {
+        listaDiv.innerHTML = "";
+        const f = filtro.toLowerCase();
+        
+        let filtrados = productos.filter(p => 
             p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
         );
+
+        if (categoriaSeleccionada) {
+            filtrados = filtrados.filter(p => p.c === categoriaSeleccionada);
+        }
+
+        filtrados.forEach((p, index) => {
+            const globalIndex = productos.findIndex(prod => prod.n === p.n && prod.c === p.c);
+            const isDisabled = productosDesactivados.includes(globalIndex);
+            
+            const card = document.createElement('div');
+            card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
+            if (isDisabled) card.classList.add('disabled');
+            if (p.c.startsWith('00')) card.classList.add('category-zero');
+            
+            card.id = `card-${globalIndex}`;
+            card.innerHTML = `
+                <div onclick="window.toggleManual(${globalIndex})" style="flex-grow: 1;">
+                    <div class="category-label">${p.c}</div>
+                    <div class="product-name">${p.n}</div>
+                </div>
+                <button class="btn ${isDisabled ? 'btn-success' : 'btn-outline-primary'} btn-sm ms-2" 
+                        onclick="window.copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', ${globalIndex})">
+                    ${isDisabled ? '✓' : 'Copiar'}
+                </button>
+            `;
+            listaDiv.appendChild(card);
+        });
+
+        if (filtrados.length === 0) {
+            listaDiv.innerHTML = '<div class="alert alert-info">No se encontraron productos</div>';
+        }
     }
-    
-    productosDiv.innerHTML = productosFiltrados.map(p => {
-        const idx = p.idx;
-        const sinStock = sinStockHoy.includes(idx);
-        const faltanteAyer = sinStockAyer.includes(idx);
-        const tieneUsuarioAsignado = estadoStock[idx] && estadoStock[idx].user;
-        const usuarioAsignado = tieneUsuarioAsignado ? estadoStock[idx].user : '';
-        const esPropio = usuarioAsignado === currentUser;
-        const disabled = tieneUsuarioAsignado && !esPropio;
+
+    // Copiar y desactivar
+    window.copiarYDesactivar = function(texto, globalIndex) {
+        navigator.clipboard.writeText(texto);
         
-        let cardClass = 'product-card';
-        if (disabled) cardClass += ' disabled';
-        if (sinStock && categoriaActual !== '🚫 Cero Stock') cardClass += ' category-zero';
-        if (faltanteAyer && !sinStock && categoriaActual !== '⚠️ Sin Stock Ayer') cardClass += ' category-faltantes-ayer';
-        
-        let displayCategory = p.c;
-        if (sinStock && categoriaActual !== '🚫 Cero Stock') {
-            displayCategory = '🚫 Cero Stock';
-        } else if (faltanteAyer && !sinStock && categoriaActual !== '⚠️ Sin Stock Ayer') {
-            displayCategory = '⚠️ Sin Stock Ayer';
+        if (!productosDesactivados.includes(globalIndex)) {
+            productosDesactivados.push(globalIndex);
+            guardarDesactivadosFirebase();
         }
         
-        const nota = p.note ? `<div class="product-note">📝 ${p.note}</div>` : '';
-        
-        return `
-            <div class="card ${cardClass}" 
-                 data-idx="${idx}"
-                 draggable="${!disabled}"
-                 ondragstart="window.dragStart(event)"
-                 ondragover="window.dragOver(event)"
-                 ondrop="window.drop(event)"
-                 ondragend="window.dragEnd()">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div style="flex: 1;">
-                            <div class="category-label">${displayCategory}</div>
-                            <h6 class="mb-1">${p.n}</h6>
-                            ${nota}
-                            ${usuarioAsignado ? `<small class="text-muted">✏️ ${usuarioAsignado}</small>` : ''}
-                        </div>
-                        <div class="stock-switch ${sinStock ? 'active' : ''}" 
-                             onclick="${disabled ? '' : `window.toggleStock(${idx})`}">
-                            <span>${sinStock ? 'Sin stock' : 'Con stock'}</span>
-                            <div class="switch-toggle ${sinStock ? 'active' : ''}"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+        renderizar(searchInput.value);
+    };
 
-window.cambiarCategoria = function(cat) {
-    categoriaActual = cat;
-    renderizar(searchInput.value);
-};
-
-window.dragStartCategory = function(e, categoria) {
-    isDraggingCategory = true;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', categoria);
-    e.target.style.opacity = '0.5';
-};
-
-window.dragOverCategory = function(e) {
-    if (!isDraggingCategory) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-};
-
-window.dropCategory = function(e, categoriaDestino) {
-    if (!isDraggingCategory) return;
-    e.preventDefault();
-    
-    const categoriaOrigen = e.dataTransfer.getData('text/plain');
-    if (categoriaOrigen === categoriaDestino) return;
-    
-    const categoriasUnicas = [...new Set(productos.map(p => p.c))].sort();
-    const categoriasActuales = categoriasOrdenPersonalizado.length > 0 
-        ? categoriasOrdenPersonalizado.filter(c => categoriasUnicas.includes(c))
-            .concat(categoriasUnicas.filter(c => !categoriasOrdenPersonalizado.includes(c)))
-        : categoriasUnicas;
-    
-    const indexOrigen = categoriasActuales.indexOf(categoriaOrigen);
-    const indexDestino = categoriasActuales.indexOf(categoriaDestino);
-    
-    if (indexOrigen === -1 || indexDestino === -1) return;
-    
-    categoriasActuales.splice(indexOrigen, 1);
-    categoriasActuales.splice(indexDestino, 0, categoriaOrigen);
-    
-    categoriasOrdenPersonalizado = categoriasActuales;
-    guardarOrdenCategorias();
-    renderizar(searchInput.value);
-};
-
-window.dragEndCategory = function() {
-    isDraggingCategory = false;
-    document.querySelectorAll('.badge-cat').forEach(badge => {
-        badge.style.opacity = '1';
-    });
-};
-
-let draggedElement = null;
-
-window.dragStart = function(e) {
-    draggedElement = e.target.closest('.product-card');
-    draggedElement.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-};
-
-window.dragOver = function(e) {
-    e.preventDefault();
-    const afterElement = getDragAfterElement(productosDiv, e.clientY);
-    if (afterElement == null) {
-        productosDiv.appendChild(draggedElement);
-    } else {
-        productosDiv.insertBefore(draggedElement, afterElement);
-    }
-};
-
-window.drop = function(e) {
-    e.preventDefault();
-};
-
-window.dragEnd = function() {
-    if (draggedElement) {
-        draggedElement.classList.remove('dragging');
-        draggedElement = null;
-    }
-};
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.product-card:not(.dragging)')];
-    
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
+    // Toggle manual
+    window.toggleManual = function(globalIndex) {
+        const idx = productosDesactivados.indexOf(globalIndex);
+        if (idx > -1) {
+            productosDesactivados.splice(idx, 1);
         } else {
-            return closest;
+            productosDesactivados.push(globalIndex);
         }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
+        guardarDesactivadosFirebase();
+        renderizar(searchInput.value);
+    };
 
-window.marcarTodosZeroCategoria = async function() {
-    if (!confirm(`¿Marcar TODOS los productos de "${categoriaActual}" como SIN STOCK?`)) return;
-    
-    showLoading('Marcando productos...');
-    const hoy = new Date().toISOString().split('T')[0];
-    let sinStockHoy = historialStock[hoy] || [];
-    
-    productos.forEach((p, idx) => {
-        if (p.c === categoriaActual && !sinStockHoy.includes(idx)) {
-            sinStockHoy.push(idx);
-            estadoStock[idx] = { stock: false, user: currentUser };
+    // Dark mode
+    window.toggleDarkMode = function() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeBtn').innerText = isDark ? '☀️' : '🌙';
+        
+        // Guardar preferencia del usuario
+        if (currentUser) {
+            localStorage.setItem(`user-${currentUser}-darkmode`, isDark);
         }
-    });
-    
-    historialStock[hoy] = sinStockHoy;
-    
-    try {
-        await set(stockRef, estadoStock);
-        await set(historialRef, historialStock);
-        console.log('✅ Categoría completa marcada sin stock');
-    } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Error al guardar');
-    }
-    
-    hideLoading();
-    renderizar(searchInput.value);
-};
+    };
 
-window.desmarcarTodosZeroCategoria = async function() {
-    if (!confirm(`¿Desmarcar TODOS los productos de "${categoriaActual}" de Cero Stock?`)) return;
-    
-    showLoading('Desmarcando productos...');
-    const hoy = new Date().toISOString().split('T')[0];
-    let sinStockHoy = historialStock[hoy] || [];
-    
-    productos.forEach((p, idx) => {
-        if (p.c === categoriaActual) {
-            sinStockHoy = sinStockHoy.filter(i => i !== idx);
-            if (estadoStock[idx] && estadoStock[idx].user === currentUser) {
-                delete estadoStock[idx];
-            }
+    // Admin functions
+    window.openAdminPanel = function() {
+        document.getElementById('adminPanelModal').classList.add('show');
+    };
+
+    window.openAddProduct = function() {
+        editingProductIndex = null;
+        document.getElementById('productModalTitle').textContent = '➕ Agregar Producto';
+        document.getElementById('productName').value = '';
+        document.getElementById('productCategory').value = '';
+        actualizarListaCategorias();
+        closeModal('adminPanelModal');
+        document.getElementById('productModal').classList.add('show');
+    };
+
+    function actualizarListaCategorias() {
+        const datalist = document.getElementById('categoriasList');
+        const categorias = [...new Set(productos.map(p => p.c))].sort();
+        datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
+    }
+
+    window.guardarProducto = async function() {
+        const nombre = document.getElementById('productName').value.trim();
+        const categoria = document.getElementById('productCategory').value.trim();
+        
+        if (!nombre || !categoria) {
+            alert('⚠️ Completa todos los campos');
+            return;
         }
-    });
-    
-    historialStock[hoy] = sinStockHoy;
-    
-    try {
-        await set(stockRef, estadoStock);
-        await set(historialRef, historialStock);
-        console.log('✅ Categoría completa desmarcada');
-    } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Error al guardar');
-    }
-    
-    hideLoading();
-    renderizar(searchInput.value);
-};
+        
+        if (editingProductIndex !== null) {
+            productos[editingProductIndex] = { n: nombre, c: categoria };
+        } else {
+            productos.push({ n: nombre, c: categoria });
+        }
+        
+        await guardarProductosFirebase();
+        closeModal('productModal');
+        alert('✅ Producto guardado correctamente');
+    };
 
-window.toggleStock = async function(idx) {
-    const hoy = new Date().toISOString().split('T')[0];
-    let sinStockHoy = historialStock[hoy] || [];
-    const sinStock = sinStockHoy.includes(idx);
-    
-    if (sinStock) {
-        sinStockHoy = sinStockHoy.filter(i => i !== idx);
-        delete estadoStock[idx];
-    } else {
-        sinStockHoy.push(idx);
-        estadoStock[idx] = { stock: false, user: currentUser };
-    }
-    
-    historialStock[hoy] = sinStockHoy;
-    
-    try {
-        await set(stockRef, estadoStock);
-        await set(historialRef, historialStock);
-    } catch (error) {
-        console.error('❌ Error al guardar stock:', error);
-        alert('Error al guardar el cambio');
-    }
-};
+    window.openManageProducts = function() {
+        closeModal('adminPanelModal');
+        document.getElementById('manageModal').classList.add('show');
+        renderManageList();
+    };
 
-window.toggleDark = function() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    if (currentUser) {
-        localStorage.setItem(`user-${currentUser}-darkmode`, isDark);
-    }
-};
-
-window.openAdminPanel = function() {
-    document.getElementById('adminPanelModal').classList.add('show');
-};
-
-window.openAddProduct = function() {
-    editingProductIndex = null;
-    document.getElementById('productModalTitle').textContent = '➕ Agregar Producto';
-    document.getElementById('productName').value = '';
-    document.getElementById('productCategory').value = '';
-    document.getElementById('productNote').value = '';
-    actualizarListaCategorias();
-    closeModal('adminPanelModal');
-    document.getElementById('productModal').classList.add('show');
-};
-
-function actualizarListaCategorias() {
-    const datalist = document.getElementById('categoriasList');
-    const categorias = [...new Set(productos.map(p => p.c))].sort();
-    datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
-}
-
-window.guardarProducto = async function() {
-    let nombre = document.getElementById('productName').value.trim();
-    let categoria = document.getElementById('productCategory').value.trim();
-    const nota = document.getElementById('productNote').value.trim();
-    
-    if (!nombre || !categoria) {
-        alert('⚠️ Completa el nombre y categoría');
-        return;
-    }
-    
-    nombre = normalizarTexto(nombre);
-    categoria = normalizarTexto(categoria);
-    
-    const producto = { n: nombre, c: categoria };
-    if (nota) producto.note = nota;
-    
-    if (editingProductIndex !== null) {
-        productos[editingProductIndex] = producto;
-    } else {
-        productos.push(producto);
-    }
-    
-    await guardarProductosFirebase();
-    closeModal('productModal');
-    alert('✅ Producto guardado correctamente');
-};
-
-async function guardarProductosFirebase() {
-    try {
-        await set(productosRef, productos);
-    } catch (error) {
-        console.error('❌ Error guardando productos:', error);
-        alert('Error al guardar productos');
-    }
-}
-
-window.openManageProducts = function() {
-    closeModal('adminPanelModal');
-    document.getElementById('manageModal').classList.add('show');
-    document.getElementById('manageSearch').value = lastManageSearch;
-    renderManageList(lastManageSearch);
-};
-
-function renderManageList(filtro = "") {
-    lastManageSearch = filtro;
-    const manageList = document.getElementById('manageList');
-    const f = filtro.toLowerCase();
-    const filtrados = productos.filter(p => 
-        p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
-    );
-    
-    manageList.innerHTML = filtrados.map((p) => {
-        const globalIdx = productos.indexOf(p);
-        const nota = p.note ? `<div class="product-note">📝 ${p.note}</div>` : '';
-        return `
-            <div class="card mb-2 p-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted">${p.c}</small>
-                        <div><strong>${p.n}</strong></div>
-                        ${nota}
-                    </div>
-                    <div>
-                        <button class="btn btn-sm btn-warning" onclick="window.editarProducto(${globalIdx})">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="window.eliminarProducto(${globalIdx})">🗑️</button>
+    function renderManageList(filtro = "") {
+        const manageList = document.getElementById('manageList');
+        const f = filtro.toLowerCase();
+        const filtrados = productos.filter(p => 
+            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
+        );
+        
+        manageList.innerHTML = filtrados.map((p) => {
+            const globalIdx = productos.indexOf(p);
+            return `
+                <div class="card mb-2 p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">${p.c}</small>
+                            <div><strong>${p.n}</strong></div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning" onclick="window.editarProducto(${globalIdx})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarProducto(${globalIdx})">🗑️</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-    }).join('');
-}
-
-window.editarProducto = function(index) {
-    editingProductIndex = index;
-    const p = productos[index];
-    document.getElementById('productModalTitle').textContent = '✏️ Editar Producto';
-    document.getElementById('productName').value = p.n;
-    document.getElementById('productCategory').value = p.c;
-    document.getElementById('productNote').value = p.note || '';
-    actualizarListaCategorias();
-    closeModal('manageModal');
-    document.getElementById('productModal').classList.add('show');
-};
-
-window.eliminarProducto = async function(index) {
-    if (confirm('¿Seguro que deseas eliminar este producto?')) {
-        productos.splice(index, 1);
-        await guardarProductosFirebase();
-        renderManageList(lastManageSearch);
+            `;
+        }).join('');
     }
-};
 
-window.openStats = function() {
-    closeModal('adminPanelModal');
-    document.getElementById('statsModal').classList.add('show');
-    renderStats();
-};
+    window.editarProducto = function(index) {
+        editingProductIndex = index;
+        const p = productos[index];
+        document.getElementById('productModalTitle').textContent = '✏️ Editar Producto';
+        document.getElementById('productName').value = p.n;
+        document.getElementById('productCategory').value = p.c;
+        actualizarListaCategorias();
+        closeModal('manageModal');
+        document.getElementById('productModal').classList.add('show');
+    };
 
-function renderStats() {
-    const filter = parseInt(document.getElementById('statsFilter').value);
-    const statsContent = document.getElementById('statsContent');
-    
-    const fechas = Object.keys(historialStock);
-    const totalDias = fechas.length;
-    
-    if (totalDias === 0) {
-        statsContent.innerHTML = '<div class="alert alert-info">No hay datos de historial todavía</div>';
-        return;
+    window.eliminarProducto = async function(index) {
+        if (confirm('¿Seguro que deseas eliminar este producto?')) {
+            productos.splice(index, 1);
+            await guardarProductosFirebase();
+            renderManageList();
+        }
+    };
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
     }
+    window.closeModal = closeModal;
+
+    // Event listeners
+    searchInput.addEventListener('input', (e) => renderizar(e.target.value));
+    document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
     
-    const stats = {};
-    
-    fechas.forEach(fecha => {
-        const sinStock = historialStock[fecha];
-        sinStock.forEach(idx => {
-            if (!stats[idx]) stats[idx] = 0;
-            stats[idx]++;
+    // Cerrar modales con click fuera
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
         });
     });
-    
-    const statsArray = Object.entries(stats).map(([idx, dias]) => ({
-        producto: productos[idx],
-        dias: dias,
-        porcentaje: (dias / totalDias * 100).toFixed(1)
-    })).filter(s => s.producto && parseFloat(s.porcentaje) >= filter)
-      .sort((a, b) => b.porcentaje - a.porcentaje);
-    
-    if (statsArray.length === 0) {
-        statsContent.innerHTML = '<div class="alert alert-info">No hay productos que cumplan el filtro</div>';
-        return;
-    }
-    
-    let html = `
-        <p><strong>Total de días registrados:</strong> ${totalDias}</p>
-        <table class="stats-table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Días sin stock</th>
-                    <th>%</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    statsArray.forEach(s => {
-        html += `
-            <tr>
-                <td>${s.producto.n}</td>
-                <td><small>${s.producto.c}</small></td>
-                <td>${s.dias}/${totalDias}</td>
-                <td><strong>${s.porcentaje}%</strong></td>
-            </tr>
-        `;
-    });
-    
-    html += '</tbody></table>';
-    statsContent.innerHTML = html;
-}
 
-window.descargarEstadisticas = function() {
-    const filter = parseInt(document.getElementById('statsFilter').value);
-    const fechas = Object.keys(historialStock);
-    const totalDias = fechas.length;
-    
-    const stats = {};
-    fechas.forEach(fecha => {
-        const sinStock = historialStock[fecha];
-        sinStock.forEach(idx => {
-            if (!stats[idx]) stats[idx] = 0;
-            stats[idx]++;
-        });
-    });
-    
-    const statsArray = Object.entries(stats).map(([idx, dias]) => ({
-        producto: productos[idx],
-        dias: dias,
-        porcentaje: (dias / totalDias * 100).toFixed(1)
-    })).filter(s => s.producto && parseFloat(s.porcentaje) >= filter)
-      .sort((a, b) => b.porcentaje - a.porcentaje);
-    
-    let csv = 'Producto,Categoria,Dias sin stock,Total dias,Porcentaje\n';
-    statsArray.forEach(s => {
-        csv += `"${s.producto.n}","${s.producto.c}",${s.dias},${totalDias},${s.porcentaje}%\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `estadisticas-stock-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-};
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('show');
-}
-window.closeModal = closeModal;
-
-searchInput.addEventListener('input', (e) => renderizar(e.target.value));
-document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
-
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('show');
-    });
-});
-
-// Iniciar la aplicación
-init();
-    </script>
+    // Iniciar aplicación
+    init();
+</script>
 </body>
 </html>
+
