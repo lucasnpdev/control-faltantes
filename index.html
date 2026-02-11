@@ -318,30 +318,49 @@
             background: #28a745;
             color: white;
         }
+        
+        .error-message {
+            background: #ff4d4d;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .error-message h3 {
+            margin-top: 0;
+        }
+        
+        .error-message pre {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
-        <div id="loadingText">Cargando productos...</div>
+        <div id="loadingText">Inicializando Firebase...</div>
     </div>
 
     <div id="userSelection">
         <div class="user-grid">
             <div class="user-card" onclick="selectUser('Franco')">
-                <div class="user-name">Valen</div>
+                <div class="user-icon">👨</div>
+                <div class="user-name">Franco</div>
             </div>
             <div class="user-card" onclick="selectUser('Jazmin')">
-                <div class="user-name">Eros</div>
-            </div>
-            <div class="user-card" onclick="selectUser('Jazmin')">
-                <div class="user-name">Gabriel</div>
-            </div>
-            <div class="user-card" onclick="selectUser('Jazmin')">
-                <div class="user-name">Fabri</div>
+                <div class="user-icon">👩</div>
+                <div class="user-name">Jazmin</div>
             </div>
             <div class="user-card admin" onclick="selectUser('admin')">
-                <div class="user-name">Lucas</div>
+                <div class="user-icon">⚙️</div>
+                <div class="user-name">Administrador</div>
             </div>
         </div>
     </div>
@@ -436,6 +455,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
+// Configuración de Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDvKz_U0-mQ7F0bDcg0Sc2Xpe3gQQqfprs",
     authDomain: "fajas-jumbo.firebaseapp.com",
@@ -445,12 +465,6 @@ const firebaseConfig = {
     messagingSenderId: "1045084929799",
     appId: "1:1045084929799:web:e0da74fc4cd5cab4e3e51d"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const productosRef = ref(db, 'productos');
-const stockRef = ref(db, 'stock');
-const historialRef = ref(db, 'historial');
 
 let productos = [];
 let estadoStock = {};
@@ -466,7 +480,9 @@ const searchInput = document.getElementById('search');
 const productosDiv = document.getElementById('productos');
 const categoryBar = document.getElementById('categoryBar');
 
-function showLoading(text = 'Cargando productos...') {
+let app, db, productosRef, stockRef, historialRef;
+
+function showLoading(text = 'Cargando...') {
     document.getElementById('loadingText').textContent = text;
     document.getElementById('loadingOverlay').style.display = 'flex';
 }
@@ -475,19 +491,58 @@ function hideLoading() {
     document.getElementById('loadingOverlay').style.display = 'none';
 }
 
+function showError(title, message, details = '') {
+    hideLoading();
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `
+        <h3>${title}</h3>
+        <p>${message}</p>
+        ${details ? `<pre>${details}</pre>` : ''}
+        <button class="btn btn-light mt-3" onclick="location.reload()">🔄 Reintentar</button>
+    `;
+    document.body.appendChild(errorDiv);
+}
+
 async function init() {
-    showLoading('Cargando productos...');
-    
     try {
-        // Cargar productos
-        const snapshot = await get(productosRef);
-        if (snapshot.exists()) {
-            productos = snapshot.val();
-            console.log('✅ Productos cargados:', productos.length);
-        } else {
-            console.warn('⚠️ No se encontraron productos en Firebase, usando array vacío');
-            productos = [];
-        }
+        showLoading('Inicializando Firebase...');
+        console.log('🔧 Inicializando Firebase...');
+        
+        // Inicializar Firebase
+        app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        
+        console.log('✅ Firebase inicializado');
+        showLoading('Conectando a base de datos...');
+        
+        // Crear referencias
+        productosRef = ref(db, 'productos');
+        stockRef = ref(db, 'stock');
+        historialRef = ref(db, 'historial');
+        
+        console.log('✅ Referencias creadas');
+        showLoading('Cargando productos...');
+        
+        // Intentar cargar productos con timeout
+        const timeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout: La conexión tardó demasiado')), 10000)
+        );
+        
+        const loadData = get(productosRef).then(snapshot => {
+            console.log('📦 Respuesta recibida de Firebase');
+            if (snapshot.exists()) {
+                productos = snapshot.val();
+                console.log('✅ Productos cargados:', productos.length);
+            } else {
+                console.warn('⚠️ No hay productos en Firebase');
+                productos = [];
+            }
+        });
+        
+        await Promise.race([loadData, timeout]);
+        
+        showLoading('Cargando historial...');
         
         // Cargar historial
         try {
@@ -508,17 +563,48 @@ async function init() {
         onValue(stockRef, (snapshot) => {
             if (snapshot.exists()) {
                 estadoStock = snapshot.val();
-                console.log('🔄 Stock actualizado en tiempo real');
+                console.log('🔄 Stock actualizado');
                 if (currentUser) renderizar();
             }
+        }, (error) => {
+            console.error('⚠️ Error en listener de stock:', error);
         });
         
+        console.log('✅ Inicialización completa');
         hideLoading();
         
     } catch (error) {
         console.error('❌ Error en init:', error);
-        hideLoading();
-        alert('❌ Error al cargar datos: ' + error.message + '\n\nVerifica:\n1. Configuración de Firebase\n2. Reglas de seguridad\n3. Conexión a internet');
+        
+        let errorMsg = 'No se pudo conectar con Firebase.';
+        let details = `Error: ${error.message}\n\n`;
+        
+        if (error.message.includes('Timeout')) {
+            errorMsg = 'La conexión con Firebase tardó demasiado.';
+            details += 'Posibles causas:\n';
+            details += '• Conexión a internet lenta o inestable\n';
+            details += '• Servidor de Firebase no responde\n';
+            details += '• Firewall o proxy bloqueando la conexión';
+        } else if (error.code === 'PERMISSION_DENIED') {
+            errorMsg = 'Acceso denegado a Firebase.';
+            details += 'Las reglas de seguridad de Firebase están bloqueando el acceso.\n\n';
+            details += 'Ve a Firebase Console → Realtime Database → Rules\n';
+            details += 'Y configura las reglas temporalmente como:\n\n';
+            details += '{\n';
+            details += '  "rules": {\n';
+            details += '    ".read": true,\n';
+            details += '    ".write": true\n';
+            details += '  }\n';
+            details += '}';
+        } else {
+            details += 'Verifica:\n';
+            details += '1. La URL de databaseURL en firebaseConfig\n';
+            details += '2. Las reglas de seguridad en Firebase Console\n';
+            details += '3. Que el proyecto de Firebase esté activo\n';
+            details += '4. Tu conexión a internet';
+        }
+        
+        showError('❌ Error de Conexión', errorMsg, details);
     }
 }
 
@@ -532,7 +618,6 @@ window.selectUser = function(user) {
         document.getElementById('adminBtn').style.display = 'block';
     }
     
-    // Cargar dark mode del usuario
     const savedDark = localStorage.getItem(`user-${user}-darkmode`);
     if (savedDark === 'true') {
         document.body.classList.add('dark-mode');
@@ -597,10 +682,8 @@ function renderizar(filtro = "") {
     const sinStockHoy = historialStock[hoy] || [];
     const sinStockAyer = historialStock[ayer] || [];
     
-    // Renderizar categorías
     const categoriasUnicas = [...new Set(productos.map(p => p.c))].sort();
     
-    // Aplicar orden personalizado
     const categoriasOrdenadas = categoriasOrdenPersonalizado.length > 0 
         ? categoriasOrdenPersonalizado.filter(c => categoriasUnicas.includes(c))
             .concat(categoriasUnicas.filter(c => !categoriasOrdenPersonalizado.includes(c)))
@@ -632,7 +715,6 @@ function renderizar(filtro = "") {
         `;
     }).join('');
     
-    // Renderizar controles rápidos
     const quickControls = document.getElementById('quickControls');
     if (categoriaActual !== 'todos' && categoriaActual !== '⚠️ Sin Stock Ayer' && categoriaActual !== '🚫 Cero Stock') {
         quickControls.innerHTML = `
@@ -648,7 +730,6 @@ function renderizar(filtro = "") {
         quickControls.style.display = 'none';
     }
     
-    // Renderizar productos
     const f = filtro.toLowerCase();
     let productosFiltrados = productos.map((p, idx) => ({ ...p, idx }));
     
@@ -934,7 +1015,6 @@ window.guardarProducto = async function() {
         return;
     }
     
-    // Normalizar texto
     nombre = normalizarTexto(nombre);
     categoria = normalizarTexto(categoria);
     
@@ -1027,7 +1107,6 @@ function renderStats() {
     const filter = parseInt(document.getElementById('statsFilter').value);
     const statsContent = document.getElementById('statsContent');
     
-    // Calcular estadísticas
     const fechas = Object.keys(historialStock);
     const totalDias = fechas.length;
     
@@ -1136,8 +1215,8 @@ document.querySelectorAll('.modal').forEach(modal => {
     });
 });
 
+// Iniciar la aplicación
 init();
     </script>
 </body>
 </html>
-
