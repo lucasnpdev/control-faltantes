@@ -142,6 +142,26 @@
             border-left-color: #6c757d !important;
         }
 
+        /* Producto sin stock */
+        .product-card.sin-stock {
+            opacity: 0.45;
+            border-left-color: #e74c3c !important;
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+        body.dark-mode .product-card.sin-stock {
+            background-color: rgba(231, 76, 60, 0.10);
+        }
+        .product-card.sin-stock .product-name {
+            color: #c0392b;
+        }
+        .stock-badge-no {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
         .category-label { font-size: 0.7rem; font-weight: bold; color: #6c757d; text-transform: uppercase; }
         
         #categoryBar::-webkit-scrollbar { display: none; }
@@ -239,6 +259,162 @@
             display: block;
             background: #ffc107;
         }
+
+        /* =============================================
+           SWITCH STOCK (verde = hay stock / rojo = sin stock)
+        ============================================= */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #e74c3c;   /* rojo = sin stock (estado base/unchecked) */
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: #28a745;   /* verde = hay stock */
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* =============================================
+           DRAG & DROP - REORDENAMIENTO
+        ============================================= */
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            color: #aaa;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            user-select: none;
+            touch-action: none;
+        }
+        .drag-handle:active { cursor: grabbing; }
+
+        .sortable-item {
+            transition: background 0.15s, opacity 0.15s;
+        }
+        .sortable-item.dragging {
+            opacity: 0.4;
+        }
+        .sortable-item.drag-over {
+            background: rgba(102, 126, 234, 0.12) !important;
+            border-top: 2px solid #667eea;
+        }
+
+        /* Lista de categorías reordenables */
+        #sortCatList .sortable-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Lista de productos reordenables */
+        #sortProdList .sortable-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #sortProdList .sortable-item .prod-info {
+            flex-grow: 1;
+        }
+        #sortProdList .sortable-item .prod-info small {
+            color: #888;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+        }
+
+        /* Modal reordenar - tabs */
+        .reorder-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .reorder-tab {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .reorder-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Panel selector de categoría en reordenar productos */
+        #prodCatSelect {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text);
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Manage list con switch */
+        .manage-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .manage-item .info { flex-grow: 1; }
+        .manage-item .info small { color: #888; font-size: 0.72rem; text-transform: uppercase; }
+        .manage-item .info strong { display: block; font-size: 0.95rem; }
+        .manage-item.sin-stock .info strong {
+            color: #c0392b;
+        }
+        .manage-item.sin-stock {
+            border-color: rgba(231, 76, 60, 0.4);
+            background-color: rgba(231, 76, 60, 0.04);
+        }
     </style>
 </head>
 <body>
@@ -318,6 +494,14 @@
             <label>Contraseña:</label>
             <input type="password" id="adminPassword" class="form-control" placeholder="Ingresa la contraseña">
         </div>
+        <div class="form-group mt-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberAdmin" checked>
+                <label class="form-check-label" for="rememberAdmin">
+                    Recordar por 7 días
+                </label>
+            </div>
+        </div>
         <div class="btn-group-custom">
             <button class="btn btn-primary flex-grow-1" onclick="verificarAdmin()">Ingresar</button>
             <button class="btn btn-secondary" onclick="closeModal('adminModal')">Cancelar</button>
@@ -331,9 +515,10 @@
         <h3>⚙️ Panel de Administración</h3>
         
         <div class="btn-group-custom">
-            <button class="btn btn-success flex-grow-1" onclick="openAddProduct()">➕ Agregar Producto</button>
+            <button class="btn btn-success flex-grow-1" onclick="openAddProduct()">➕ Agregar</button>
             <button class="btn btn-warning flex-grow-1" onclick="openManageProducts()">✏️ Gestionar</button>
         </div>
+        <button class="btn btn-info w-100 mt-2 text-white" onclick="openReorderModal()">⇅ Reordenar</button>
         
         <button class="btn btn-secondary w-100 mt-3" onclick="closeModal('adminPanelModal')">Cerrar</button>
     </div>
@@ -359,7 +544,7 @@
     </div>
 </div>
 
-<!-- Modal Gestionar Productos -->
+<!-- Modal Gestionar Productos (con switch activo/inactivo) -->
 <div class="modal" id="manageModal">
     <div class="modal-content">
         <h3>✏️ Gestionar Productos</h3>
@@ -369,10 +554,40 @@
     </div>
 </div>
 
+<!-- Modal Reordenar -->
+<div class="modal" id="reorderModal">
+    <div class="modal-content">
+        <h3>⇅ Reordenar</h3>
+
+        <div class="reorder-tabs">
+            <button class="reorder-tab active" id="tabCat" onclick="switchReorderTab('cat')">📂 Categorías</button>
+            <button class="reorder-tab" id="tabProd" onclick="switchReorderTab('prod')">📦 Productos</button>
+        </div>
+
+        <!-- Tab Categorías -->
+        <div id="reorderCatPanel">
+            <p class="text-muted small mb-2">Arrastrá para reordenar las categorías.</p>
+            <div id="sortCatList" style="max-height: 380px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Tab Productos -->
+        <div id="reorderProdPanel" style="display:none;">
+            <select id="prodCatSelect" onchange="renderSortProdList()"></select>
+            <p class="text-muted small mb-2">Arrastrá para reordenar los productos de esta categoría.</p>
+            <div id="sortProdList" style="max-height: 340px; overflow-y: auto;"></div>
+        </div>
+
+        <div class="btn-group-custom mt-3">
+            <button class="btn btn-primary flex-grow-1" onclick="guardarOrden()">💾 Guardar orden</button>
+            <button class="btn btn-secondary" onclick="closeModal('reorderModal')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getDatabase, ref, set, get, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
     // Firebase configuration
     const firebaseConfig = {
@@ -385,7 +600,6 @@
         appId: "1:599058830915:web:4d48395640d7981c1626f6"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
@@ -394,99 +608,221 @@
     let currentUser = null;
     let isAdmin = false;
     let categoriaSeleccionada = null;
-    let productosDesactivados = [];
+    let productosDesactivados = [];   // índices "tachados" (flujo normal de copia)
+    let productosSinStock = new Set(); // índices sin stock (switch rojo)
     let editingProductIndex = null;
     
+    // Para el reordenamiento temporal
+    let tempCatOrder = [];   // array de strings de categorías
+    let tempProdOrder = {};  // { categoria: [indices originales] }
+
     const listaDiv = document.getElementById('listaProductos');
     const searchInput = document.getElementById('searchInput');
     const categoryBar = document.getElementById('categoryBar');
     const ADMIN_PASSWORD = 'Lakis154629617';
+    const ADMIN_SESSION_KEY = 'admin-session';
+    const ADMIN_SESSION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 días en ms
     
     // Referencias Firebase
     const productosRef = ref(database, 'productos');
     const desactivadosRef = ref(database, 'productos-desactivados');
     const ultimoResetRef = ref(database, 'ultimo-reset');
+    const inactivosRef = ref(database, 'productos-sin-stock');  // verde/rojo stock
+    const ordenCategoriasRef = ref(database, 'orden-categorias'); // NUEVO
+    const ordenProductosRef = ref(database, 'orden-productos');   // NUEVO
 
-    // Verificar y ejecutar reset diario
+    // ============================================================
+    // SESIÓN ADMIN (7 días)
+    // ============================================================
+    function guardarSesionAdmin() {
+        const expiry = Date.now() + ADMIN_SESSION_TTL;
+        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ expiry }));
+    }
+
+    function verificarSesionAdmin() {
+        try {
+            const raw = localStorage.getItem(ADMIN_SESSION_KEY);
+            if (!raw) return false;
+            const { expiry } = JSON.parse(raw);
+            if (Date.now() > expiry) {
+                localStorage.removeItem(ADMIN_SESSION_KEY);
+                return false;
+            }
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function borrarSesionAdmin() {
+        localStorage.removeItem(ADMIN_SESSION_KEY);
+    }
+
+    // ============================================================
+    // RESET DIARIO
+    // ============================================================
     async function verificarResetDiario() {
         try {
             const snapshot = await get(ultimoResetRef);
             const ahora = new Date();
-            
-            // Convertir a hora Argentina (UTC-3)
             const horaArgentina = new Date(ahora.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
-            const fechaHoy = horaArgentina.toISOString().split('T')[0]; // YYYY-MM-DD
-            
+            const fechaHoy = horaArgentina.toISOString().split('T')[0];
             let ultimoReset = null;
-            if (snapshot.exists()) {
-                ultimoReset = snapshot.val();
-            }
-            
-            console.log('📅 Fecha hoy (ARG):', fechaHoy);
-            console.log('📅 Último reset:', ultimoReset);
-            
-            // Si no hay reset hoy y ya pasaron las 8 AM
+            if (snapshot.exists()) ultimoReset = snapshot.val();
             const hora = horaArgentina.getHours();
             const debeResetear = (!ultimoReset || ultimoReset !== fechaHoy) && hora >= 8;
-            
-            if (debeResetear) {
-                console.log('🔄 Ejecutando reset diario...');
-                await ejecutarResetDiario(fechaHoy);
-            } else {
-                console.log('✅ No se necesita reset todavía');
-            }
+            if (debeResetear) await ejecutarResetDiario(fechaHoy);
         } catch (error) {
             console.error('❌ Error verificando reset diario:', error);
         }
     }
 
-    // Ejecutar reset diario
     async function ejecutarResetDiario(fechaHoy) {
         try {
-            // 1. Limpiar todos los productos desactivados
             productosDesactivados = [];
             await set(desactivadosRef, []);
-            
-            // 2. Limpiar todas las categorías guardadas de usuarios
             const usuarios = ['Valen', 'Abi', 'Gabriel', 'Fabri', 'Eros', 'Lucas', 'Admin'];
-            usuarios.forEach(user => {
-                localStorage.removeItem(`user-${user}-categoria`);
-            });
-            
-            // 3. Marcar que ya se hizo el reset hoy
+            usuarios.forEach(user => localStorage.removeItem(`user-${user}-categoria`));
             await set(ultimoResetRef, fechaHoy);
-            
-            console.log('✅ Reset diario completado');
-            
-            // Si hay un usuario activo, recargar la vista
-            if (currentUser) {
-                categoriaSeleccionada = null;
-                crearCategorias();
-                renderizar();
-            }
+            if (currentUser) { categoriaSeleccionada = null; crearCategorias(); renderizar(); }
         } catch (error) {
             console.error('❌ Error ejecutando reset diario:', error);
         }
     }
 
-    // Inicialización
+    // ============================================================
+    // CARGA FIREBASE
+    // ============================================================
+    async function cargarDatosFirebase() {
+        try {
+            const snapshot = await get(productosRef);
+            if (snapshot.exists()) {
+                productos = snapshot.val();
+            } else {
+                mostrarLoading('Importando productos por primera vez...');
+                const response = await fetch('productos.json');
+                if (!response.ok) throw new Error('No se pudo cargar productos.json');
+                productos = await response.json();
+                await set(productosRef, productos);
+            }
+
+            onValue(productosRef, (snap) => {
+                if (snap.exists()) {
+                    productos = snap.val();
+                    if (currentUser) { crearCategorias(); renderizar(); mostrarSyncIndicator(); }
+                }
+            }, (e) => console.error('❌ Error listener productos:', e));
+
+            // Desactivados (flujo copia diaria)
+            const desSnap = await get(desactivadosRef);
+            productosDesactivados = desSnap.exists() ? desSnap.val() : [];
+            if (!desSnap.exists()) await set(desactivadosRef, []);
+            onValue(desactivadosRef, (snap) => {
+                if (snap.exists()) {
+                    productosDesactivados = snap.val();
+                    if (currentUser) { renderizar(); mostrarSyncIndicator(); }
+                }
+            });
+
+            // Sin stock (switch verde/rojo)
+            const inSnap = await get(inactivosRef);
+            productosSinStock = new Set(inSnap.exists() ? inSnap.val() : []);
+            onValue(inactivosRef, (snap) => {
+                productosSinStock = new Set(snap.exists() ? snap.val() : []);
+                if (currentUser) { renderizar(); mostrarSyncIndicator(); }
+            });
+
+        } catch (error) {
+            console.error('❌ Error cargando datos:', error);
+            alert('❌ Error crítico de Firebase. Verifica tu conexión a internet.');
+            throw error;
+        }
+    }
+
+    async function guardarProductosFirebase() {
+        try {
+            await set(productosRef, productos);
+        } catch (error) {
+            console.error('❌ Error guardando productos:', error);
+            alert('❌ Error al guardar productos: ' + error.message);
+        }
+    }
+
+    async function guardarDesactivadosFirebase() {
+        try {
+            await set(desactivadosRef, productosDesactivados);
+        } catch (error) {
+            console.error('❌ Error guardando desactivados:', error);
+        }
+    }
+
+    async function guardarInactivosFirebase() {
+        try {
+            await set(inactivosRef, [...productosSinStock]);
+        } catch (error) {
+            console.error('❌ Error guardando sin-stock:', error);
+        }
+    }
+
+    // ============================================================
+    // ORDEN DE CATEGORÍAS Y PRODUCTOS
+    // Guardamos en Firebase el orden como arrays de índices/strings
+    // ============================================================
+    async function cargarOrdenes() {
+        const [catSnap, prodSnap] = await Promise.all([
+            get(ordenCategoriasRef),
+            get(ordenProductosRef)
+        ]);
+        tempCatOrder = catSnap.exists() ? catSnap.val() : [];
+        tempProdOrder = prodSnap.exists() ? prodSnap.val() : {};
+    }
+
+    function getCategoriasSorted() {
+        const todasCats = [...new Set(productos.map(p => p.c))];
+        if (!tempCatOrder || tempCatOrder.length === 0) return todasCats.sort();
+        // Las que tienen orden definido, ordenadas; el resto al final alfabéticamente
+        const ordenadas = tempCatOrder.filter(c => todasCats.includes(c));
+        const resto = todasCats.filter(c => !ordenadas.includes(c)).sort();
+        return [...ordenadas, ...resto];
+    }
+
+    function getProductosDeCat(categoria) {
+        const todosEnCat = productos
+            .map((p, i) => ({ p, i }))
+            .filter(({ p }) => p.c === categoria);
+
+        const orden = tempProdOrder[categoria];
+        if (!orden || orden.length === 0) return todosEnCat;
+
+        const ordenados = orden
+            .map(idx => todosEnCat.find(x => x.i === idx))
+            .filter(Boolean);
+        const resto = todosEnCat.filter(x => !orden.includes(x.i));
+        return [...ordenados, ...resto];
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
     async function init() {
         try {
             await cargarDatosFirebase();
+            await cargarOrdenes();
             await verificarResetDiario();
             ocultarLoading();
-            
-            // Verificar si hay un usuario guardado
+
             const savedUser = localStorage.getItem('ultimo-usuario');
             const savedIsAdmin = localStorage.getItem('ultimo-es-admin') === 'true';
-            
+
             if (savedUser) {
-                // Auto-login con el último usuario
                 if (savedIsAdmin) {
-                    // Si era admin, pedir contraseña de nuevo
-                    mostrarSeleccionUsuario();
+                    // Verificar si tiene sesión admin válida (7 días)
+                    if (verificarSesionAdmin()) {
+                        await loginAdminDirecto();
+                    } else {
+                        mostrarSeleccionUsuario();
+                    }
                 } else {
-                    // Login automático para usuarios normales
                     await selectUser(savedUser);
                 }
             } else {
@@ -498,18 +834,12 @@
         }
     }
 
-    function mostrarLoading(mensaje = 'Cargando productos...') {
+    function mostrarLoading(msg = 'Cargando productos...') {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingOverlay').querySelector('div:last-child').textContent = mensaje;
+        document.getElementById('loadingOverlay').querySelector('div:last-child').textContent = msg;
     }
-
-    function ocultarLoading() {
-        document.getElementById('loadingOverlay').style.display = 'none';
-    }
-
-    function mostrarSeleccionUsuario() {
-        document.getElementById('userSelection').style.display = 'flex';
-    }
+    function ocultarLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+    function mostrarSeleccionUsuario() { document.getElementById('userSelection').style.display = 'flex'; }
 
     function mostrarSyncIndicator() {
         const indicator = document.getElementById('syncIndicator');
@@ -517,170 +847,65 @@
         setTimeout(() => indicator.classList.remove('syncing'), 1000);
     }
 
-    // Cargar datos desde Firebase
-    async function cargarDatosFirebase() {
-        try {
-            console.log('🔄 Iniciando conexión con Firebase...');
-            
-            // Verificar si hay productos en Firebase
-            const snapshot = await get(productosRef);
-            
-            if (snapshot.exists()) {
-                productos = snapshot.val();
-                console.log('✅ Productos cargados desde Firebase:', productos.length);
-            } else {
-                // Primera vez: cargar desde JSON y subir a Firebase
-                console.log('🔄 Primera carga: importando desde productos.json...');
-                mostrarLoading('Importando productos por primera vez...');
-                
-                const response = await fetch('productos.json');
-                if (!response.ok) throw new Error('No se pudo cargar productos.json');
-                
-                productos = await response.json();
-                await set(productosRef, productos);
-                console.log('✅ Productos importados a Firebase:', productos.length);
-            }
-            
-            // Escuchar cambios en productos en tiempo real
-            onValue(productosRef, (snapshot) => {
-                console.log('🔄 Cambio detectado en productos Firebase');
-                if (snapshot.exists()) {
-                    productos = snapshot.val();
-                    if (currentUser) {
-                        crearCategorias();
-                        renderizar();
-                        mostrarSyncIndicator();
-                        console.log('✅ UI actualizada con nuevos productos');
-                    }
-                }
-            }, (error) => {
-                console.error('❌ Error en listener de productos:', error);
-            });
-            
-            // Cargar y escuchar productos desactivados
-            const desactivadosSnapshot = await get(desactivadosRef);
-            if (desactivadosSnapshot.exists()) {
-                productosDesactivados = desactivadosSnapshot.val();
-                console.log('✅ Productos desactivados cargados:', productosDesactivados.length);
-            } else {
-                productosDesactivados = [];
-                await set(desactivadosRef, []);
-                console.log('✅ Inicializado array de desactivados en Firebase');
-            }
-            
-            onValue(desactivadosRef, (snapshot) => {
-                console.log('🔄 Cambio detectado en desactivados Firebase');
-                if (snapshot.exists()) {
-                    productosDesactivados = snapshot.val();
-                    if (currentUser) {
-                        renderizar();
-                        mostrarSyncIndicator();
-                        console.log('✅ UI actualizada con desactivados');
-                    }
-                }
-            }, (error) => {
-                console.error('❌ Error en listener de desactivados:', error);
-            });
-            
-        } catch (error) {
-            console.error('❌ Error cargando datos de Firebase:', error);
-            alert('❌ Error crítico de Firebase. Verifica tu conexión a internet.');
-            throw error;
-        }
-    }
-
-    // Guardar productos en Firebase
-    async function guardarProductosFirebase() {
-        try {
-            console.log('💾 Guardando productos en Firebase...');
-            await set(productosRef, productos);
-            console.log('✅ Productos guardados en Firebase exitosamente');
-        } catch (error) {
-            console.error('❌ Error guardando productos:', error);
-            alert('❌ Error al guardar productos: ' + error.message);
-        }
-    }
-
-    // Guardar desactivados en Firebase
-    async function guardarDesactivadosFirebase() {
-        try {
-            console.log('💾 Guardando desactivados en Firebase...', productosDesactivados.length);
-            await set(desactivadosRef, productosDesactivados);
-            console.log('✅ Desactivados guardados en Firebase');
-        } catch (error) {
-            console.error('❌ Error guardando desactivados:', error);
-        }
-    }
-
-    // Selección de usuario
+    // ============================================================
+    // USUARIOS
+    // ============================================================
     window.selectUser = async function(nombre) {
         currentUser = nombre;
         isAdmin = false;
-        
-        // Guardar usuario para la próxima vez
         localStorage.setItem('ultimo-usuario', nombre);
         localStorage.setItem('ultimo-es-admin', 'false');
-        
         document.getElementById('userSelection').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUser').textContent = nombre;
         document.getElementById('adminBtn').style.display = 'none';
-        
-        // Cargar categoría guardada del usuario
         const savedCat = localStorage.getItem(`user-${nombre}-categoria`);
         categoriaSeleccionada = savedCat || null;
-        
-        // Cargar modo oscuro del usuario
         const darkMode = localStorage.getItem(`user-${nombre}-darkmode`) === 'true';
-        if (darkMode) {
-            document.body.classList.add('dark-mode');
-            document.getElementById('themeBtn').innerText = '☀️';
-        } else {
-            document.body.classList.remove('dark-mode');
-            document.getElementById('themeBtn').innerText = '🌙';
-        }
-        
+        document.body.classList.toggle('dark-mode', darkMode);
+        document.getElementById('themeBtn').innerText = darkMode ? '☀️' : '🌙';
         crearCategorias();
         renderizar();
-        
-        // Scroll a la categoría guardada después de que se creen
-        setTimeout(() => {
-            scrollToActiveCategory();
-        }, 100);
+        setTimeout(scrollToActiveCategory, 100);
     };
 
-    // Login Admin
     window.loginAdmin = function() {
         document.getElementById('adminModal').classList.add('show');
         document.getElementById('adminPassword').value = '';
     };
 
+    // Login admin directo (desde sesión guardada)
+    async function loginAdminDirecto() {
+        currentUser = 'Admin';
+        isAdmin = true;
+        document.getElementById('userSelection').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('currentUser').textContent = '👑 Admin';
+        document.getElementById('adminBtn').style.display = 'block';
+        const darkMode = localStorage.getItem('user-Admin-darkmode') === 'true';
+        document.body.classList.toggle('dark-mode', darkMode);
+        document.getElementById('themeBtn').innerText = darkMode ? '☀️' : '🌙';
+        crearCategorias();
+        renderizar();
+    }
+
     window.verificarAdmin = function() {
         const pass = document.getElementById('adminPassword').value;
         if (pass === ADMIN_PASSWORD) {
+            const remember = document.getElementById('rememberAdmin').checked;
             currentUser = 'Admin';
             isAdmin = true;
-            
-            // Guardar admin para la próxima vez (pero seguirá pidiendo contraseña)
             localStorage.setItem('ultimo-usuario', 'Admin');
             localStorage.setItem('ultimo-es-admin', 'true');
-            
+            if (remember) guardarSesionAdmin();
             closeModal('adminModal');
             document.getElementById('userSelection').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('currentUser').textContent = '👑 Admin';
             document.getElementById('adminBtn').style.display = 'block';
-            
-            // Cargar modo oscuro del admin
             const darkMode = localStorage.getItem('user-Admin-darkmode') === 'true';
-            if (darkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeBtn').innerText = '☀️';
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.getElementById('themeBtn').innerText = '🌙';
-            }
-            
+            document.body.classList.toggle('dark-mode', darkMode);
+            document.getElementById('themeBtn').innerText = darkMode ? '☀️' : '🌙';
             crearCategorias();
             renderizar();
         } else {
@@ -688,32 +913,28 @@
         }
     };
 
-    // Cambiar usuario
     window.cambiarUsuario = function() {
-        // Limpiar usuario guardado
         localStorage.removeItem('ultimo-usuario');
         localStorage.removeItem('ultimo-es-admin');
-        
+        borrarSesionAdmin();
         currentUser = null;
         isAdmin = false;
         document.getElementById('mainApp').style.display = 'none';
         document.getElementById('userSelection').style.display = 'flex';
     };
 
-    // Crear categorías
+    // ============================================================
+    // CATEGORÍAS
+    // ============================================================
     function crearCategorias() {
         categoryBar.innerHTML = '';
-        const categorias = [...new Set(productos.map(p => p.c))].sort();
-        
-        // Botón "Todas"
+        const categorias = getCategoriasSorted();
         const btnTodas = document.createElement('span');
         btnTodas.className = 'badge-cat';
         if (!categoriaSeleccionada) btnTodas.classList.add('active');
         btnTodas.textContent = 'Todas';
         btnTodas.onclick = () => filtrarPorCategoria(null, btnTodas);
         categoryBar.appendChild(btnTodas);
-        
-        // Categorías
         categorias.forEach(cat => {
             const badge = document.createElement('span');
             badge.className = 'badge-cat';
@@ -727,57 +948,72 @@
 
     function filtrarPorCategoria(categoria, element) {
         categoriaSeleccionada = categoria;
-        
-        // Guardar categoría del usuario
-        if (currentUser) {
-            localStorage.setItem(`user-${currentUser}-categoria`, categoria || '');
-        }
-        
+        if (currentUser) localStorage.setItem(`user-${currentUser}-categoria`, categoria || '');
         document.querySelectorAll('.badge-cat').forEach(b => b.classList.remove('active'));
         element.classList.add('active');
         renderizar();
-        
-        // Scroll para mantener visible la categoría activa
         scrollToActiveCategory();
     }
-    
-    // Función para hacer scroll a la categoría activa
+
     function scrollToActiveCategory() {
-        const activeButton = document.querySelector('.badge-cat.active');
-        if (activeButton) {
-            activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
+        const active = document.querySelector('.badge-cat.active');
+        if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
 
-    // Renderizar productos
+    // ============================================================
+    // RENDERIZAR LISTA
+    // ============================================================
     function renderizar(filtro = "") {
         listaDiv.innerHTML = "";
         const f = filtro.toLowerCase();
-        
-        let filtrados = productos.filter(p => 
-            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
-        );
 
+        let filtrados;
         if (categoriaSeleccionada) {
-            filtrados = filtrados.filter(p => p.c === categoriaSeleccionada);
+            filtrados = getProductosDeCat(categoriaSeleccionada)
+                .filter(({ p }) => p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f));
+        } else {
+            const catsSorted = getCategoriasSorted();
+            filtrados = [];
+            catsSorted.forEach(cat => {
+                getProductosDeCat(cat).forEach(item => {
+                    if (item.p.n.toLowerCase().includes(f) || item.p.c.toLowerCase().includes(f)) {
+                        filtrados.push(item);
+                    }
+                });
+            });
         }
 
-        filtrados.forEach((p, index) => {
-            const globalIndex = productos.findIndex(prod => prod.n === p.n && prod.c === p.c);
+        filtrados.forEach(({ p, i: globalIndex }) => {
             const isDisabled = productosDesactivados.includes(globalIndex);
-            
+            const isSinStock = productosSinStock.has(globalIndex);
+
             const card = document.createElement('div');
             card.className = "card product-card shadow-sm p-3 d-flex flex-row justify-content-between align-items-center";
             if (isDisabled) card.classList.add('disabled');
             if (p.c.startsWith('00')) card.classList.add('category-zero');
-            
+            if (isSinStock) card.classList.add('sin-stock');
             card.id = `card-${globalIndex}`;
+
+            // Switch visible para todos: verde = hay stock (checked), rojo = sin stock (unchecked)
+            const switchHtml = `
+                <label class="toggle-switch me-2" title="${isSinStock ? 'Sin stock — tocar para marcar con stock' : 'Hay stock — tocar para marcar sin stock'}">
+                    <input type="checkbox" ${isSinStock ? '' : 'checked'}
+                        onchange="window.toggleStock(${globalIndex}, this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            `;
+
+            const sinStockBadge = isSinStock
+                ? `<span class="stock-badge-no">SIN STOCK</span>`
+                : '';
+
             card.innerHTML = `
-                <div onclick="window.toggleManual(${globalIndex})" style="flex-grow: 1;">
+                <div onclick="window.toggleManual(${globalIndex})" style="flex-grow: 1; cursor: pointer;">
                     <div class="category-label">${p.c}</div>
-                    <div class="product-name">${p.n}</div>
+                    <div class="product-name">${p.n}${sinStockBadge}</div>
                 </div>
-                <button class="btn ${isDisabled ? 'btn-success' : 'btn-outline-primary'} btn-sm ms-2" 
+                ${switchHtml}
+                <button class="btn ${isDisabled ? 'btn-success' : 'btn-outline-primary'} btn-sm ms-1" 
                         onclick="window.copiarYDesactivar('${p.n.replace(/'/g, "\\'")}', ${globalIndex})">
                     ${isDisabled ? '✓' : 'Copiar'}
                 </button>
@@ -790,43 +1026,54 @@
         }
     }
 
-    // Copiar y desactivar
+    // ============================================================
+    // TOGGLE STOCK (switch verde/rojo)
+    // checked = true → hay stock → sacar del set sin-stock
+    // checked = false → sin stock → agregar al set sin-stock
+    // ============================================================
+    window.toggleStock = function(globalIndex, hayStock) {
+        if (hayStock) {
+            productosSinStock.delete(globalIndex);
+        } else {
+            productosSinStock.add(globalIndex);
+        }
+        guardarInactivosFirebase();
+        renderizar(searchInput.value);
+    };
+
+    // ============================================================
+    // COPIAR Y DESACTIVAR / TOGGLE MANUAL
+    // ============================================================
     window.copiarYDesactivar = function(texto, globalIndex) {
         navigator.clipboard.writeText(texto);
-        
         if (!productosDesactivados.includes(globalIndex)) {
             productosDesactivados.push(globalIndex);
             guardarDesactivadosFirebase();
         }
-        
         renderizar(searchInput.value);
     };
 
-    // Toggle manual
     window.toggleManual = function(globalIndex) {
         const idx = productosDesactivados.indexOf(globalIndex);
-        if (idx > -1) {
-            productosDesactivados.splice(idx, 1);
-        } else {
-            productosDesactivados.push(globalIndex);
-        }
+        if (idx > -1) productosDesactivados.splice(idx, 1);
+        else productosDesactivados.push(globalIndex);
         guardarDesactivadosFirebase();
         renderizar(searchInput.value);
     };
 
-    // Dark mode
+    // ============================================================
+    // DARK MODE
+    // ============================================================
     window.toggleDarkMode = function() {
         document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
         document.getElementById('themeBtn').innerText = isDark ? '☀️' : '🌙';
-        
-        // Guardar preferencia del usuario
-        if (currentUser) {
-            localStorage.setItem(`user-${currentUser}-darkmode`, isDark);
-        }
+        if (currentUser) localStorage.setItem(`user-${currentUser}-darkmode`, isDark);
     };
 
-    // Admin functions
+    // ============================================================
+    // ADMIN PANEL
+    // ============================================================
     window.openAdminPanel = function() {
         document.getElementById('adminPanelModal').classList.add('show');
     };
@@ -843,25 +1090,19 @@
 
     function actualizarListaCategorias() {
         const datalist = document.getElementById('categoriasList');
-        const categorias = [...new Set(productos.map(p => p.c))].sort();
-        datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
+        const cats = getCategoriasSorted();
+        datalist.innerHTML = cats.map(c => `<option value="${c}">`).join('');
     }
 
     window.guardarProducto = async function() {
         const nombre = document.getElementById('productName').value.trim();
         const categoria = document.getElementById('productCategory').value.trim();
-        
-        if (!nombre || !categoria) {
-            alert('⚠️ Completa todos los campos');
-            return;
-        }
-        
+        if (!nombre || !categoria) { alert('⚠️ Completa todos los campos'); return; }
         if (editingProductIndex !== null) {
             productos[editingProductIndex] = { n: nombre, c: categoria };
         } else {
             productos.push({ n: nombre, c: categoria });
         }
-        
         await guardarProductosFirebase();
         closeModal('productModal');
         alert('✅ Producto guardado correctamente');
@@ -876,28 +1117,31 @@
     function renderManageList(filtro = "") {
         const manageList = document.getElementById('manageList');
         const f = filtro.toLowerCase();
-        const filtrados = productos.filter(p => 
-            p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f)
-        );
-        
-        manageList.innerHTML = filtrados.map((p) => {
-            const globalIdx = productos.indexOf(p);
+        const filtrados = productos
+            .map((p, i) => ({ p, i }))
+            .filter(({ p }) => p.n.toLowerCase().includes(f) || p.c.toLowerCase().includes(f));
+
+        manageList.innerHTML = filtrados.map(({ p, i }) => {
+            const isSinStock = productosSinStock.has(i);
             return `
-                <div class="card mb-2 p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">${p.c}</small>
-                            <div><strong>${p.n}</strong></div>
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning" onclick="window.editarProducto(${globalIdx})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="window.eliminarProducto(${globalIdx})">🗑️</button>
-                        </div>
+                <div class="manage-item ${isSinStock ? 'sin-stock' : ''}">
+                    <div class="info">
+                        <small>${p.c}</small>
+                        <strong>${p.n}</strong>
                     </div>
+                    <label class="toggle-switch me-1" title="${isSinStock ? 'Sin stock' : 'Hay stock'}">
+                        <input type="checkbox" ${isSinStock ? '' : 'checked'}
+                            onchange="window.toggleStock(${i}, this.checked); window.renderManageListPublic('${document.getElementById('manageSearch').value.replace(/'/g, "\\'")}')">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <button class="btn btn-sm btn-warning" onclick="window.editarProducto(${i})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="window.eliminarProducto(${i})">🗑️</button>
                 </div>
             `;
         }).join('');
     }
+
+    window.renderManageListPublic = function(filtro = "") { renderManageList(filtro); };
 
     window.editarProducto = function(index) {
         editingProductIndex = index;
@@ -918,25 +1162,200 @@
         }
     };
 
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('show');
+    // ============================================================
+    // REORDENAR MODAL
+    // ============================================================
+    window.openReorderModal = function() {
+        closeModal('adminPanelModal');
+        // Inicializar copias de trabajo
+        tempCatOrder = getCategoriasSorted().slice();
+        // Para productos, inicializar por categoría
+        const cats = getCategoriasSorted();
+        cats.forEach(cat => {
+            tempProdOrder[cat] = getProductosDeCat(cat).map(x => x.i);
+        });
+        switchReorderTab('cat');
+        document.getElementById('reorderModal').classList.add('show');
+    };
+
+    window.switchReorderTab = function(tab) {
+        document.getElementById('reorderCatPanel').style.display = tab === 'cat' ? 'block' : 'none';
+        document.getElementById('reorderProdPanel').style.display = tab === 'prod' ? 'block' : 'none';
+        document.getElementById('tabCat').classList.toggle('active', tab === 'cat');
+        document.getElementById('tabProd').classList.toggle('active', tab === 'prod');
+        if (tab === 'cat') renderSortCatList();
+        else renderSortProdPanel();
+    };
+
+    function renderSortCatList() {
+        const list = document.getElementById('sortCatList');
+        list.innerHTML = '';
+        tempCatOrder.forEach((cat, idx) => {
+            const item = document.createElement('div');
+            item.className = 'sortable-item';
+            item.dataset.index = idx;
+            item.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <span style="flex-grow:1;">${cat}</span>
+            `;
+            attachDragEvents(item, tempCatOrder, list, renderSortCatList);
+            list.appendChild(item);
+        });
     }
+
+    function renderSortProdPanel() {
+        const select = document.getElementById('prodCatSelect');
+        select.innerHTML = tempCatOrder.map(c => `<option value="${c}">${c}</option>`).join('');
+        if (!select.value && tempCatOrder.length) select.value = tempCatOrder[0];
+        renderSortProdList();
+    }
+
+    window.renderSortProdList = function() {
+        const cat = document.getElementById('prodCatSelect').value;
+        if (!cat) return;
+        if (!tempProdOrder[cat]) tempProdOrder[cat] = getProductosDeCat(cat).map(x => x.i);
+        const list = document.getElementById('sortProdList');
+        list.innerHTML = '';
+        tempProdOrder[cat].forEach((prodIdx, i) => {
+            const p = productos[prodIdx];
+            if (!p) return;
+            const item = document.createElement('div');
+            item.className = 'sortable-item';
+            item.dataset.index = i;
+            item.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="prod-info">
+                    <small>${p.c}</small>
+                    <div>${p.n}</div>
+                </div>
+            `;
+            attachDragEvents(item, tempProdOrder[cat], list, window.renderSortProdList);
+            list.appendChild(item);
+        });
+    };
+
+    window.guardarOrden = async function() {
+        try {
+            await set(ordenCategoriasRef, tempCatOrder);
+            await set(ordenProductosRef, tempProdOrder);
+            crearCategorias();
+            renderizar(searchInput.value);
+            closeModal('reorderModal');
+            alert('✅ Orden guardado');
+        } catch (e) {
+            console.error(e);
+            alert('❌ Error guardando el orden: ' + e.message);
+        }
+    };
+
+    // ============================================================
+    // DRAG & DROP (funciona en desktop y mobile con touch events)
+    // ============================================================
+    function attachDragEvents(item, orderArray, container, rerenderFn) {
+        // Desktop drag
+        item.draggable = true;
+        item.addEventListener('dragstart', () => {
+            item.classList.add('dragging');
+            container._draggingIndex = parseInt(item.dataset.index);
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            item.classList.add('drag-over');
+        });
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const fromIdx = container._draggingIndex;
+            const toIdx = parseInt(item.dataset.index);
+            if (fromIdx !== toIdx && fromIdx !== undefined) {
+                const [moved] = orderArray.splice(fromIdx, 1);
+                orderArray.splice(toIdx, 0, moved);
+                rerenderFn();
+            }
+        });
+
+        // Touch drag
+        let touchStartY = 0;
+        let touchFromIdx = null;
+
+        item.addEventListener('touchstart', (e) => {
+            const handle = item.querySelector('.drag-handle');
+            if (!handle.contains(e.target)) return;
+            e.preventDefault();
+            touchFromIdx = parseInt(item.dataset.index);
+            touchStartY = e.touches[0].clientY;
+            item.classList.add('dragging');
+        }, { passive: false });
+
+        item.addEventListener('touchmove', (e) => {
+            if (touchFromIdx === null) return;
+            e.preventDefault();
+            const y = e.touches[0].clientY;
+            container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            // Encontrar sobre qué elemento estamos
+            const items = [...container.querySelectorAll('.sortable-item')];
+            for (const el of items) {
+                const rect = el.getBoundingClientRect();
+                if (y >= rect.top && y <= rect.bottom) {
+                    el.classList.add('drag-over');
+                    break;
+                }
+            }
+        }, { passive: false });
+
+        item.addEventListener('touchend', (e) => {
+            if (touchFromIdx === null) return;
+            item.classList.remove('dragging');
+            const y = e.changedTouches[0].clientY;
+            const items = [...container.querySelectorAll('.sortable-item')];
+            let toIdx = touchFromIdx;
+            for (const el of items) {
+                const rect = el.getBoundingClientRect();
+                if (y >= rect.top && y <= rect.bottom) {
+                    toIdx = parseInt(el.dataset.index);
+                    break;
+                }
+            }
+            container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            if (toIdx !== touchFromIdx) {
+                const [moved] = orderArray.splice(touchFromIdx, 1);
+                orderArray.splice(toIdx, 0, moved);
+                rerenderFn();
+            }
+            touchFromIdx = null;
+        });
+    }
+
+    // ============================================================
+    // CERRAR MODALES
+    // ============================================================
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
     window.closeModal = closeModal;
 
-    // Event listeners
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
     searchInput.addEventListener('input', (e) => renderizar(e.target.value));
     document.getElementById('manageSearch').addEventListener('input', (e) => renderManageList(e.target.value));
-    
-    // Cerrar modales con click fuera
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('show');
         });
     });
 
-    // Iniciar aplicación
+    // Tecla Enter en password admin
+    document.getElementById('adminPassword').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') window.verificarAdmin();
+    });
+
+    // ============================================================
+    // ARRANCAR
+    // ============================================================
     init();
 </script>
 </body>
 </html>
-
