@@ -120,6 +120,7 @@
 
     <script>
         // --- CONFIGURACIÓN FIREBASE ---
+        // ¡NO OLVIDES PEGAR TUS CREDENCIALES AQUÍ DE NUEVO!
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_PROYECTO.firebaseapp.com",
@@ -149,7 +150,8 @@
         function iniciarEscuchas() {
             // Escuchar Categorías
             db.ref('categorias').orderByChild('nombre').on('value', snap => {
-                renderCategorias(snap.val() || {});
+                const cats = snap.val() || {};
+                renderCategorias(cats);
             });
             // Escuchar Productos
             db.ref('productos').on('value', snap => {
@@ -159,13 +161,19 @@
             });
         }
 
-        // --- RENDERIZADO ---
+        // --- RENDERIZADO (Aquí estaba el error, ahora corregido con Object.keys) ---
+        
         function renderCategorias(catsObj) {
             const list = document.getElementById('categories-list');
             list.innerHTML = '';
             
-            // Convertir objeto a array y ordenar alfabeticamente
-            const sortedCats = Object.keys(catsObj).map(key => ({id: key, ...catsObj[key]}));
+            // CORRECCIÓN: Convertimos el Objeto a Array antes de ordenar/mapear
+            const sortedCats = Object.keys(catsObj).map(key => ({
+                id: key, 
+                ...catsObj[key]
+            }));
+            
+            // Ordenar alfabeticamente
             sortedCats.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
             sortedCats.forEach(cat => {
@@ -194,9 +202,12 @@
             container.innerHTML = '';
             
             let hayItems = false;
+            
+            // CORRECCIÓN: Iteramos sobre las llaves del objeto
             Object.keys(prodsObj).forEach(key => {
                 const p = prodsObj[key];
-                if(p.en_stock === false) { // Explícitamente false
+                // Buscamos explícitamente items sin stock
+                if(p.en_stock === false) { 
                     hayItems = true;
                     container.appendChild(crearProductoHTML(key, p, true));
                 }
@@ -208,13 +219,12 @@
             const container = document.getElementById('products-list');
             container.innerHTML = '';
             
-            // Filtramos por categoría actual Y que tengan stock
-            // Los que no tienen stock se van a la lista roja principal
+            // CORRECCIÓN: Convertimos objeto a lista para filtrar y ordenar
             const misProds = Object.keys(prodsObj)
-                .filter(k => prodsObj[k].categoria_id === currentCatID && prodsObj[k].en_stock !== false)
-                .map(k => ({id: k, ...prodsObj[k]}));
+                .map(k => ({id: k, ...prodsObj[k]}))
+                .filter(p => p.categoria_id === currentCatID && p.en_stock !== false); // Solo de esta cat y CON STOCK
 
-            // Ordenar por campo 'orden' (original)
+            // Ordenar por campo 'orden'
             misProds.sort((a,b) => (a.orden || 0) - (b.orden || 0));
 
             misProds.forEach(p => {
@@ -257,7 +267,7 @@
             db.ref(`categorias/${id}`).update({ usuario_activo: currentUser });
             db.ref(`categorias/${id}/usuario_activo`).onDisconnect().set("");
             
-            // Cargar productos inicial
+            // Recargar productos
             db.ref('productos').once('value', s => renderProductos(s.val() || {}));
         }
 
@@ -329,6 +339,7 @@
                             updates[`categorias/${c.key}/usuario_activo`] = "";
                         });
                         db.ref().update(updates);
+                        alert("Nuevo día iniciado");
                     });
                 });
             }
