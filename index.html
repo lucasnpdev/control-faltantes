@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Picker Jumbo Control</title>
+    <title>Picker Jumbo V3</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -16,64 +16,67 @@
             --primary: #00C853; 
             --busy: #D32F2F; 
             --accent: #2962FF; 
+            --warning: #FF9800;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
         
-        /* PANTALLA LOGIN */
+        /* LOGIN */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .user-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 400px; }
         .user-btn { background: var(--card); color: white; border: 1px solid #333; padding: 20px; font-size: 1.1rem; border-radius: 10px; cursor: pointer; text-align: center; }
-        .user-btn:active { background: var(--primary); color: black; }
 
         /* HEADER */
-        header { position: sticky; top: 0; z-index: 10; background: #000; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .user-badge { font-weight: bold; color: var(--primary); font-size: 0.9rem; }
-        .btn-reset { background: #FF9800; color: #000; border: none; padding: 8px 12px; font-weight: bold; border-radius: 5px; font-size: 0.8rem; }
+        header { position: sticky; top: 0; z-index: 100; background: #000; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .user-badge { font-weight: bold; color: var(--primary); }
+        .btn-reset { background: var(--warning); color: #000; border: none; padding: 8px 12px; font-weight: bold; border-radius: 5px; font-size: 0.8rem; }
 
         /* CONTENEDORES */
         .container { padding: 10px; max-width: 800px; margin: 0 auto; }
-        .section-title { color: #888; border-bottom: 1px solid #333; margin: 20px 0 10px 0; padding-bottom: 5px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .section-title { color: var(--busy); border-bottom: 1px solid var(--busy); margin: 20px 0 10px 0; padding-bottom: 5px; font-weight: bold; font-size: 1.1rem; }
 
         /* CATEGORIAS */
-        .cat-card { background: var(--card); padding: 18px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 5px solid transparent; }
-        .cat-card.busy { background: #2c1515; border-color: var(--busy); opacity: 0.7; pointer-events: none; }
+        .cat-card { background: var(--card); padding: 20px; margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .cat-card.busy { background: #2c1515; border-color: var(--busy); opacity: 0.6; pointer-events: none; }
         .cat-card.active-user { background: #1a3320; border-color: var(--primary); opacity: 1; pointer-events: auto; }
-        .cat-status { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 
         /* PRODUCTOS */
-        .prod-card { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 6px; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
-        .prod-card.checked { background: #1b5e20; } /* Verde Controlado */
+        .prod-card { background: var(--card); padding: 10px; margin-bottom: 8px; border-radius: 6px; display: grid; grid-template-columns: 40px 1fr 110px; gap: 10px; align-items: center; border: 1px solid #333; }
+        .prod-card.checked { background: #1b5e20; border-color: var(--primary); } /* Verde Controlado */
         
-        .prod-details { flex-grow: 1; overflow: hidden; }
-        .prod-name { font-size: 1rem; font-weight: 500; display: block; margin-bottom: 6px; color: #fff; }
+        /* COLUMNA 1: REORDENAR */
+        .order-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn-arrow { background: #333; color: white; border: none; width: 30px; height: 30px; border-radius: 4px; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        
+        /* COLUMNA 2: INFO */
+        .prod-info { overflow: hidden; }
+        .prod-name { font-size: 1rem; font-weight: 500; display: block; margin-bottom: 4px; color: #fff; line-height: 1.3; }
         .prod-meta { font-size: 0.75rem; color: #aaa; }
 
-        /* BOTONES PRODUCTO */
-        .actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+        /* COLUMNA 3: ACCIONES */
+        .actions-col { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
         
-        .btn-copy { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; cursor: pointer; width: 100px; }
-        .btn-copy:active { transform: scale(0.95); }
+        .btn-copy { background: var(--accent); color: white; border: none; padding: 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
+        
+        .btn-stock { background: var(--busy); color: white; border: none; padding: 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; width: 100%; text-align: center; font-weight: bold; text-transform: uppercase; }
+        .btn-stock.restore { background: #444; color: #ccc; } /* Botón gris para "Devolver a stock" */
 
-        /* SWITCH STOCK */
-        .stock-toggle { background: #333; color: #aaa; border: 1px solid #444; padding: 5px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; text-align: center; width: 100px; }
-        .stock-toggle.sin-stock { background: var(--busy); color: white; border-color: var(--busy); }
+        .btn-edit { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0; margin-left: 5px; }
 
         /* NAVEGACION */
         #view-products { display: none; }
-        .back-bar { background: #222; padding: 10px; display: flex; align-items: center; gap: 10px; position: sticky; top: 58px; z-index: 9; border-bottom: 1px solid #333; }
-        .btn-back { background: transparent; color: white; border: 1px solid #555; padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; }
+        .back-bar { background: #222; padding: 10px; display: flex; align-items: center; gap: 15px; position: sticky; top: 60px; z-index: 99; border-bottom: 1px solid #333; }
+        .back-btn { background: #444; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; }
         
         /* AGREGAR PRODUCTO */
-        .add-area { margin-top: 20px; padding: 15px; background: #151515; border-radius: 8px; }
-        .add-row { display: flex; gap: 10px; }
-        .input-dark { flex-grow: 1; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; }
+        .add-area { margin-top: 30px; padding: 15px; background: #151515; border-radius: 8px; display: flex; gap: 10px; }
+        .input-dark { flex-grow: 1; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; font-size: 1rem; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h2 style="color: var(--primary);">Selecciona Usuario</h2>
+        <h2 style="color: var(--primary);">Identifícate</h2>
         <div class="user-grid">
             <div class="user-btn" onclick="login('Valen')">Valen</div>
             <div class="user-btn" onclick="login('Eros')">Eros</div>
@@ -86,42 +89,39 @@
     <div id="app-content" style="display:none;">
         <header>
             <div class="user-badge" id="user-display">Usuario</div>
-            <button class="btn-reset" onclick="reiniciarDia()">🌅 Nuevo Día</button>
+            <button class="btn-reset" onclick="reiniciarDia()">🔄 Nuevo Día</button>
         </header>
 
         <div class="container" id="view-categories">
+            
             <div id="sin-stock-container" style="display:none;">
-                <h3 class="section-title" style="color: var(--busy);">⚠️ SIN STOCK (Reporte Diario)</h3>
+                <h3 class="section-title" id="sin-stock-title">SIN STOCK [FECHA]</h3>
                 <div id="sin-stock-list"></div>
             </div>
 
-            <h3 class="section-title">Sectores Disponibles</h3>
+            <h3 class="section-title" style="color: #666; border-color: #444; margin-top:30px;">SECTORES</h3>
             <div id="categories-list"></div>
         </div>
 
         <div id="view-products">
             <div class="back-bar">
-                <button class="btn-back" onclick="salirCategoria()">⬅</button>
-                <span id="cat-title" style="font-weight:bold; font-size:1.1rem;">Categoria</span>
+                <button class="back-btn" onclick="salirCategoria()">⬅ Volver</button>
+                <span id="cat-title" style="font-weight:bold; font-size:1.1rem; color:white;">Categoria</span>
             </div>
             
             <div class="container">
                 <div id="products-list"></div>
 
                 <div class="add-area">
-                    <div class="add-row">
-                        <input type="text" id="new-prod-name" class="input-dark" placeholder="Nuevo producto...">
-                        <button onclick="agregarProducto()" style="background:var(--primary); border:none; border-radius:5px; width:50px; font-size:1.5rem; color:black;">+</button>
-                    </div>
+                    <input type="text" id="new-prod-name" class="input-dark" placeholder="Agregar producto nuevo...">
+                    <button onclick="agregarProducto()" style="background:var(--primary); border:none; width:50px; font-size:1.5rem; border-radius:5px;">+</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN FIREBASE ---
-        // ¡NO OLVIDES PEGAR TUS CREDENCIALES AQUÍ DE NUEVO!
-        // Your web app's Firebase configuration
+        // --- CONFIGURACIÓN FIREBASE (REEMPLAZA CON LA TUYA) ---
         const firebaseConfig = {
           apiKey: "AIzaSyCfj4L-O-80sVzA7pzqGpZ4bl0iaVEeeeU",
           authDomain: "control-faltantes.firebaseapp.com",
@@ -135,212 +135,250 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ESTADO GLOBAL
+        // ESTADO
         let currentUser = null;
         let currentCatID = null;
+        let productsCache = []; // Para facilitar el reordenamiento
 
-        // --- FUNCIONES DE SESIÓN ---
+        // --- FUNCIONES ---
+
         function login(user) {
             currentUser = user;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
             document.getElementById('user-display').innerText = user;
-            iniciarEscuchas();
-        }
-
-        function iniciarEscuchas() {
-            // Escuchar Categorías
-            db.ref('categorias').orderByChild('nombre').on('value', snap => {
-                const cats = snap.val() || {};
-                renderCategorias(cats);
-            });
-            // Escuchar Productos
+            
+            // Iniciar Escucha
+            db.ref('categorias').orderByChild('nombre').on('value', snap => renderCategorias(snap.val() || {}));
             db.ref('productos').on('value', snap => {
-                const prods = snap.val() || {};
-                renderSinStock(prods);
-                if(currentCatID) renderProductos(prods);
+                const data = snap.val() || {};
+                renderSinStock(data);
+                if(currentCatID) renderProductos(data);
             });
         }
 
-        // --- RENDERIZADO (Aquí estaba el error, ahora corregido con Object.keys) ---
-        
+        // 1. RENDERIZADO DE CATEGORIAS
         function renderCategorias(catsObj) {
             const list = document.getElementById('categories-list');
             list.innerHTML = '';
             
-            // CORRECCIÓN: Convertimos el Objeto a Array antes de ordenar/mapear
-            const sortedCats = Object.keys(catsObj).map(key => ({
-                id: key, 
-                ...catsObj[key]
-            }));
-            
-            // Ordenar alfabeticamente
+            const sortedCats = Object.keys(catsObj).map(key => ({id: key, ...catsObj[key]}));
             sortedCats.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
             sortedCats.forEach(cat => {
                 const el = document.createElement('div');
-                const ocupadoPorOtro = cat.usuario_activo && cat.usuario_activo !== currentUser;
-                const ocupadoPorMi = cat.usuario_activo === currentUser;
+                const busy = cat.usuario_activo && cat.usuario_activo !== currentUser;
+                const mine = cat.usuario_activo === currentUser;
 
-                el.className = `cat-card ${ocupadoPorOtro ? 'busy' : ''} ${ocupadoPorMi ? 'active-user' : ''}`;
+                el.className = `cat-card ${busy ? 'busy' : ''} ${mine ? 'active-user' : ''}`;
                 
-                let statusInfo = "";
-                if(ocupadoPorOtro) statusInfo = `<span class="cat-status" style="color:var(--busy)">En uso: ${cat.usuario_activo}</span>`;
-                if(ocupadoPorMi) statusInfo = `<span class="cat-status" style="color:var(--primary)">TU SECTOR</span>`;
+                let status = "";
+                if(busy) status = `<span style="color:var(--busy); font-size:0.8rem">⚠️ ${cat.usuario_activo}</span>`;
+                if(mine) status = `<span style="color:var(--primary); font-size:0.8rem">🟢 TUYO</span>`;
 
-                el.innerHTML = `<span>${cat.nombre}</span> ${statusInfo}`;
-                
-                el.onclick = () => {
-                    if(!ocupadoPorOtro) entrarCategoria(cat.id, cat.nombre);
-                };
+                el.innerHTML = `<strong>${cat.nombre}</strong> ${status}`;
+                el.onclick = () => { if(!busy) entrarCategoria(cat.id, cat.nombre); };
                 list.appendChild(el);
             });
         }
 
+        // 2. RENDERIZADO LISTA "SIN STOCK" (GLOBAL)
         function renderSinStock(prodsObj) {
             const container = document.getElementById('sin-stock-list');
             const wrapper = document.getElementById('sin-stock-container');
+            const title = document.getElementById('sin-stock-title');
+            
             container.innerHTML = '';
             
-            let hayItems = false;
-            
-            // CORRECCIÓN: Iteramos sobre las llaves del objeto
+            // Obtener fecha de hoy para el título
+            const hoy = new Date().toLocaleDateString('es-AR');
+            title.innerText = `SIN STOCK [${hoy}]`;
+
+            let count = 0;
             Object.keys(prodsObj).forEach(key => {
                 const p = prodsObj[key];
-                // Buscamos explícitamente items sin stock
-                if(p.en_stock === false) { 
-                    hayItems = true;
-                    container.appendChild(crearProductoHTML(key, p, true));
+                // Si tiene fecha de sin stock, lo mostramos aquí
+                if(p.fecha_sin_stock) {
+                    count++;
+                    const div = document.createElement('div');
+                    div.className = "prod-card";
+                    div.style.borderColor = "var(--busy)";
+                    div.innerHTML = `
+                        <div></div>
+                        <div class="prod-info">
+                            <span class="prod-name">${p.nombre}</span>
+                            <small style="color:#777">Origen: ${p.cat_nombre || 'N/A'}</small>
+                        </div>
+                        <div class="actions-col">
+                            <button class="btn-stock restore" onclick="restaurarStock('${key}')">Devolver a Stock</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
                 }
             });
-            wrapper.style.display = hayItems ? 'block' : 'none';
+            wrapper.style.display = count > 0 ? 'block' : 'none';
         }
 
+        // 3. RENDERIZADO PRODUCTOS (DENTRO DE CATEGORIA)
         function renderProductos(prodsObj) {
             const container = document.getElementById('products-list');
-            container.innerHTML = '';
+            const catName = document.getElementById('cat-title').innerText;
+            const esDesactivarSiempre = catName.includes("Desactivar siempre"); // Verificamos la categoria especial
             
-            // CORRECCIÓN: Convertimos objeto a lista para filtrar y ordenar
-            const misProds = Object.keys(prodsObj)
+            container.innerHTML = '';
+            productsCache = []; // Limpiamos cache local
+
+            // Filtramos solo los de esta categoría Y que tengan stock (los sin stock se van a la otra lista)
+            const list = Object.keys(prodsObj)
                 .map(k => ({id: k, ...prodsObj[k]}))
-                .filter(p => p.categoria_id === currentCatID && p.en_stock !== false); // Solo de esta cat y CON STOCK
+                .filter(p => p.categoria_id === currentCatID && !p.fecha_sin_stock);
 
             // Ordenar por campo 'orden'
-            misProds.sort((a,b) => (a.orden || 0) - (b.orden || 0));
+            list.sort((a,b) => (a.orden || 0) - (b.orden || 0));
+            productsCache = list; // Guardamos para usar en swap
 
-            misProds.forEach(p => {
-                container.appendChild(crearProductoHTML(p.id, p, false));
+            list.forEach((p, index) => {
+                const el = document.createElement('div');
+                el.className = `prod-card ${p.controlado ? 'checked' : ''}`;
+                
+                // Botón "MARCAR SIN STOCK" (Solo si NO es la categoría "Desactivar siempre")
+                const btnStockHTML = esDesactivarSiempre ? '' : 
+                    `<button class="btn-stock" onclick="marcarSinStock('${p.id}')">MARCAR SIN STOCK</button>`;
+
+                el.innerHTML = `
+                    <div class="order-col">
+                        <button class="btn-arrow" onclick="moverProducto('${p.id}', ${p.orden}, -1, ${index})">⬆</button>
+                        <button class="btn-arrow" onclick="moverProducto('${p.id}', ${p.orden}, 1, ${index})">⬇</button>
+                    </div>
+                    
+                    <div class="prod-info">
+                        <span class="prod-name">
+                            ${p.nombre} 
+                            <button class="btn-edit" onclick="editarNombreSeguro('${p.id}', '${p.nombre.replace(/'/g, "\\'")}')">✏️</button>
+                        </span>
+                        <div class="prod-meta">
+                            ${!esDesactivarSiempre ? `<span style="color:#4CAF50">En Stock</span>` : 'Permanente'}
+                            | <span style="color:#d32f2f; cursor:pointer;" onclick="eliminar('${p.id}')">Eliminar</span>
+                        </div>
+                    </div>
+
+                    <div class="actions-col">
+                        <button class="btn-copy" onclick="copiar('${p.id}', '${p.nombre.replace(/'/g, "\\'")}')">COPIAR</button>
+                        ${btnStockHTML}
+                    </div>
+                `;
+                container.appendChild(el);
             });
         }
 
-        function crearProductoHTML(id, p, esSinStock) {
-            const div = document.createElement('div');
-            div.className = `prod-card ${p.controlado ? 'checked' : ''}`;
-            
-            const btnStockClass = p.en_stock === false ? 'sin-stock' : '';
-            const btnStockText = p.en_stock === false ? 'SIN STOCK' : 'EN STOCK';
-            const catOrigen = esSinStock ? `<small style="color:#777">Origen: ${p.cat_nombre || 'N/A'}</small>` : '';
+        // --- ACCIONES DE DATOS ---
 
-            div.innerHTML = `
-                <div class="prod-details">
-                    <span class="prod-name" contenteditable="true" onblur="editarNombre('${id}', this.innerText)">${p.nombre}</span>
-                    ${catOrigen}
-                </div>
-                <div class="actions">
-                    <button class="btn-copy" onclick="copiar('${id}', '${p.nombre}')">COPIAR</button>
-                    <div class="stock-toggle ${btnStockClass}" onclick="toggleStock('${id}', ${p.en_stock})">${btnStockText}</div>
-                    ${!esSinStock ? `<small style="color:#555; font-size:0.6rem; cursor:pointer" onclick="eliminar('${id}')">Eliminar</small>` : ''}
-                </div>
-            `;
-            return div;
+        function moverProducto(id, ordenActual, direccion, indexArray) {
+            // Dirección: -1 (Subir), 1 (Bajar)
+            if (!ordenActual) ordenActual = 0;
+            
+            const newIndex = indexArray + direccion;
+            // Verificar limites
+            if (newIndex < 0 || newIndex >= productsCache.length) return;
+
+            const vecino = productsCache[newIndex];
+            
+            // Intercambiamos valores de orden en Firebase
+            const updates = {};
+            updates[`productos/${id}/orden`] = vecino.orden || 0;
+            updates[`productos/${vecino.id}/orden`] = ordenActual;
+
+            db.ref().update(updates);
         }
 
-        // --- LÓGICA DE NEGOCIO ---
+        function editarNombreSeguro(id, nombreActual) {
+            // Usamos prompt nativo para evitar ediciones accidentales
+            const nuevoNombre = prompt("Editar nombre del producto:", nombreActual);
+            if (nuevoNombre && nuevoNombre.trim() !== "") {
+                db.ref(`productos/${id}`).update({ nombre: nuevoNombre.trim() });
+            }
+        }
 
+        function marcarSinStock(id) {
+            const fechaHoy = new Date().toLocaleDateString('es-AR');
+            // Al agregar la fecha, desaparece de la lista normal y aparece en la lista "Sin Stock"
+            db.ref(`productos/${id}`).update({ fecha_sin_stock: fechaHoy });
+        }
+
+        function restaurarStock(id) {
+            // Borrar la fecha hace que vuelva a su categoría original
+            db.ref(`productos/${id}`).update({ fecha_sin_stock: null });
+        }
+
+        function copiar(id, texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                db.ref(`productos/${id}`).update({ controlado: true });
+                if(navigator.vibrate) navigator.vibrate(50);
+            });
+        }
+
+        function agregarProducto() {
+            const nombre = document.getElementById('new-prod-name').value.trim();
+            if(!nombre) return;
+            
+            // Ponemos un orden alto para que vaya al final
+            const ultimoOrden = productsCache.length > 0 ? (productsCache[productsCache.length-1].orden || 0) + 100 : 1000;
+
+            db.ref('productos').push({
+                nombre: nombre,
+                categoria_id: currentCatID,
+                cat_nombre: document.getElementById('cat-title').innerText,
+                controlado: false,
+                orden: ultimoOrden
+            });
+            document.getElementById('new-prod-name').value = '';
+        }
+
+        function eliminar(id) {
+            if(confirm("¿Eliminar definitivamente?")) {
+                db.ref(`productos/${id}`).remove();
+            }
+        }
+
+        // --- NAVEGACION ---
         function entrarCategoria(id, nombre) {
             currentCatID = id;
             document.getElementById('cat-title').innerText = nombre;
             document.getElementById('view-categories').style.display = 'none';
             document.getElementById('view-products').style.display = 'block';
             window.scrollTo(0,0);
-
-            // Bloquear categoría
+            
             db.ref(`categorias/${id}`).update({ usuario_activo: currentUser });
             db.ref(`categorias/${id}/usuario_activo`).onDisconnect().set("");
             
-            // Recargar productos
-            db.ref('productos').once('value', s => renderProductos(s.val() || {}));
+            db.ref('productos').once('value', s => {
+                const data = s.val() || {};
+                renderProductos(data);
+            });
         }
 
         function salirCategoria() {
             if(currentCatID) {
-                // Desbloquear
                 db.ref(`categorias/${currentCatID}`).update({ usuario_activo: "" });
                 db.ref(`categorias/${currentCatID}/usuario_activo`).onDisconnect().cancel();
-                
                 currentCatID = null;
                 document.getElementById('view-products').style.display = 'none';
                 document.getElementById('view-categories').style.display = 'block';
             }
         }
 
-        function copiar(id, texto) {
-            navigator.clipboard.writeText(texto).then(() => {
-                // Marcar como controlado (verde)
-                db.ref(`productos/${id}`).update({ controlado: true });
-                if(navigator.vibrate) navigator.vibrate(50);
-            });
-        }
-
-        function toggleStock(id, estadoActual) {
-            // Si es undefined o true, pasa a false. Si es false, pasa a true.
-            const nuevoEstado = estadoActual === false ? true : false;
-            db.ref(`productos/${id}`).update({ en_stock: nuevoEstado });
-        }
-
-        function agregarProducto() {
-            const input = document.getElementById('new-prod-name');
-            const nombre = input.value.trim();
-            if(!nombre) return;
-            
-            db.ref('productos').push({
-                nombre: nombre,
-                categoria_id: currentCatID,
-                cat_nombre: document.getElementById('cat-title').innerText,
-                en_stock: true,
-                controlado: false,
-                orden: Date.now() // Truco para que vaya al final
-            });
-            input.value = '';
-        }
-
-        function editarNombre(id, val) {
-            db.ref(`productos/${id}`).update({ nombre: val });
-        }
-
-        function eliminar(id) {
-            if(confirm("¿Borrar producto permanentemente?")) {
-                db.ref(`productos/${id}`).remove();
-            }
-        }
-
         function reiniciarDia() {
-            if(confirm("¿INICIAR NUEVO DÍA?\n\n- Se borrarán los colores verdes (controlados).\n- Se liberarán las categorías.\n- Lo que está 'Sin Stock' SE MANTENDRÁ sin stock.")) {
-                
-                // 1. Resetear Controlados
+            if(confirm("¿INICIAR NUEVO DÍA?\nSe borrarán las marcas verdes. La lista 'Sin Stock' se mantiene.")) {
                 db.ref('productos').once('value', snap => {
                     const updates = {};
                     snap.forEach(child => {
                         updates[`productos/${child.key}/controlado`] = false;
                     });
-                    
-                    // 2. Liberar Categorías
                     db.ref('categorias').once('value', catSnap => {
                         catSnap.forEach(c => {
                             updates[`categorias/${c.key}/usuario_activo`] = "";
                         });
                         db.ref().update(updates);
-                        alert("Nuevo día iniciado");
                     });
                 });
             }
@@ -348,5 +386,3 @@
     </script>
 </body>
 </html>
-
-
